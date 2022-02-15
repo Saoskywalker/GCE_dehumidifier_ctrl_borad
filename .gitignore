@@ -1,0 +1,12 @@
+/list
+/out
+/*.bak
+/*.htm
+/*.uvgui.*
+/*.plg
+/*.iex
+/.vscode
+/*.uvopt
+*.uvproj
+/source insight
+*.code-workspace
