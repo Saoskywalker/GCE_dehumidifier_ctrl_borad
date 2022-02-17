@@ -495,7 +495,7 @@ static void NTC_10K3450_To_Temp(TS_ADC_PARA *_ad_st, UI16 _ad_buf, TE_FuncState 
 			value_buf = 0;
 		}
 	}
-	else if (_ad_buf > 1000)
+	else if (_ad_buf > 500)
 	{
 		_ad_st->Err_Cut_Count = 0;
 		_ad_st->Err_Normal_Count = 0;
@@ -517,7 +517,7 @@ static void NTC_10K3450_To_Temp(TS_ADC_PARA *_ad_st, UI16 _ad_buf, TE_FuncState 
 		{
 			_ad_st->status = AI_NORMAL;
 		}
-		_ad_buf = _ad_buf >> 1;
+
 		value_buf = 5 + ADC_lookup(_ad_buf, Temp_Tab_10k_3450, 154); //表从5F开始
 	}
 

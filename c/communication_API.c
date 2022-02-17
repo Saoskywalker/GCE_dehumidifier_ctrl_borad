@@ -195,9 +195,18 @@ static void rxd_data_protocl(UI08 *_ui08_data)
     {
         io_status = DI_CUT;
     }
-
     WRITE_PUMP_FULL_IO_STATUS_BUF(io_status); //副水箱IO状态
 
+    if (*(_ui08_data + 1) & bit5)
+    {
+        io_status = DI_CUT; //已倾倒
+    }
+    else
+    {
+        io_status = DI_SHORT;
+    }
+    WRITE_DUMP_STATUS_BUF(io_status); //倾倒开关状态
+    
     if (*(_ui08_data + 1) & bit7)
     {
         io_status = DI_CUT;
@@ -221,25 +230,25 @@ static void rxd_data_protocl(UI08 *_ui08_data)
     //室温 AD
     ui16_buf = (UI16)(*(_ui08_data + 2) & 0x03);
     ui16_buf = (ui16_buf << 8) + *(_ui08_data + 3);
-    ui16_buf = ui16_buf << 1;
     WRITE_ROOM_TEMP_AD(ui16_buf);
 
     //管温 AD
     ui16_buf = (UI16)(*(_ui08_data + 2) & 0x0c);
     ui16_buf = (ui16_buf << 6) + *(_ui08_data + 4);
+    ui16_buf >>= 1; //本程序查表法, 表为9位
     WRITE_COIL_TEMP_AD(ui16_buf);
 
     // hum  AD
     ui16_buf = (UI16)(*(_ui08_data + 2) & 0x30);
     ui16_buf = (ui16_buf << 4) + *(_ui08_data + 5);
-    // ui16_buf = ui16_buf << 1;
     WRITE_ROOM_HUM_AD(ui16_buf);
 
-    WRITE_ROOM_HUM_BUF(*(_ui08_data + 6));
+    WRITE_ROOM_HUM_BUF(*(_ui08_data + 6)); //已转换的湿度值
 
     //压缩机温度AD
     ui16_buf = (UI16)(*(_ui08_data + 2) & 0xC0);
     ui16_buf = (ui16_buf << 2) + *(_ui08_data + 7);
+    ui16_buf >>= 1; //本程序查表法, 表为9位
     WRITE_COMP_TEMP_AD(ui16_buf);
 }
 

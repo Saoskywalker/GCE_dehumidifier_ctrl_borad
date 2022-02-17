@@ -3,6 +3,7 @@
 GCE_XDATA TS_DI_Para_Def G_Water_Full_Para;		   //水箱水位检测
 GCE_XDATA TS_DI_Para_Def G_Pump_Full_Sw_Para;	   //副水箱水位检测
 GCE_XDATA TS_DI_Para_Def G_Pump_water_pipe_Status; //水泵水管接入状态
+GCE_XDATA TS_DI_Para_Def G_Dump_Status;            //倾倒状态
 
 // *****************************************************************************
 // 函数名称 : IO_Data_Init
