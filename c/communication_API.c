@@ -3,7 +3,7 @@
 GCE_XDATA UUI08 Comm_Bit = {0};            //标志位变量
 GCE_XDATA UI08 G_Communication_Time = 180; //通信故障时间
 
-GCE_XDATA TE_ErrorStatus Comm_Status; // 通讯故障状态
+GCE_XDATA TE_ErrorStatus G_Comm_Status; // 通讯故障状态
 
 GCE_XDATA TE_FuncState Comm_TX_HALT_Status = DISABLE; // 给电源板发送睡眠标志
 GCE_XDATA TE_FuncState Comm_RX_HALT_Status = DISABLE; // 接收到电源板回复的睡眠标志
@@ -34,7 +34,7 @@ void Comm_HALT_Logic(void)
         || (G_Sys_Err.temp_coil_err)  // 管温传感器故障
         || (G_Sys_Err.hum_Sensor_err) //湿度传感器故障
         || (G_Sys_Err.temp_comp_err)  //湿度传感器故障
-        || (Comm_Status = ERROR)      // 通信故障
+        || (G_Comm_Status = ERROR)      // 通信故障
         || (G_Buzz_Time > 0)          // 蜂鸣器响
     )
     {
@@ -73,11 +73,11 @@ void Comm_Err_Logic(void)
 
     if (G_Communication_Time > 0)
     {
-        Comm_Status = SUCCESS;
+        G_Comm_Status = SUCCESS;
     }
     else
     {
-        Comm_Status = ERROR;
+        G_Comm_Status = ERROR;
     }
 }
 
@@ -248,7 +248,6 @@ static void rxd_data_protocl(UI08 *_ui08_data)
     //压缩机温度AD
     ui16_buf = (UI16)(*(_ui08_data + 2) & 0xC0);
     ui16_buf = (ui16_buf << 2) + *(_ui08_data + 7);
-    ui16_buf >>= 1; //本程序查表法, 表为9位
     WRITE_COMP_TEMP_AD(ui16_buf);
 }
 

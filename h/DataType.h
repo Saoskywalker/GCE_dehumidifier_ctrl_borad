@@ -56,6 +56,7 @@ typedef enum
 typedef struct
 {
   TE_FuncState Auto_Restart; //掉电记忆使能
+  TE_FuncState Wifi; //Wifi功能
 } TS_SYS_Config;
 //
 

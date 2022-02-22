@@ -23,8 +23,8 @@ extern void Temp_Deal(void);
 #define GET_ROOM_HUM(void) G_Hum_Para.value                //获取湿度值
 #define GET_ROOM_HUM_SENSOR_STATUS(void) G_Hum_Para.status //获取湿度传感器故障状态
 
-//#define    GET_Comp_TEMP_F(void)  G_Temp_Coil.value  // 获取管温℉
-#define GET_Comp_TEMP_C(void) G_Temp_Coil.C_value            // 获取管温摄氏度
+//#define    GET_Comp_TEMP_F(void)  G_Temp_Comp.value  // 获取管温℉
+#define GET_Comp_TEMP_C(void) G_Temp_Comp.C_value            // 获取管温摄氏度
 #define GET_Comp_TEMP_SENSOR_STATUS(void) G_Temp_Comp.status //获取管温传感器故障状态
 
 #define WRITE_ROOM_HUM_BUF(a) G_Hum_Para.value_buf = a //写入室内湿度值

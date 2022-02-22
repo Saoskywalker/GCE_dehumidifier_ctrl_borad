@@ -39,10 +39,8 @@ void main(void)
             CLEAR_SYS_TIME_BIT();
         }
     }
-    // EEP 机型读取
-
+    // 用户数据读取
     Sys_Data_Read_EEP();
-    //显示温度更新
 
     while (1)
     {
