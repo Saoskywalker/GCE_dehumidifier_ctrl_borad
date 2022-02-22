@@ -12,7 +12,7 @@ GCE_XDATA TE_Flag_Status S_Flash_mS500 = SET; // 500ms闪烁
 
 GCE_XDATA UI16 S_Comp_Test_Disp_En_Time = 0; //进入压缩机强制测试模式时 全显示时间
 
-GCE_XDATA UI08 S_Test_Key_Data = 0; //自检data
+GCE_XDATA UI08 S_Test_cont1 = 0; //自检计数
 
 /******************************************************************************
  *         数码管显示数据定义
@@ -58,6 +58,35 @@ void LED_mS10_Deal(void)
 }
 
 // *****************************************************************************
+// 函数名称 : Prg_mS250_DSP
+// 功能说明 : 250mS时间片
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : 许荣乾
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+static void Prg_mS250_DSP(void)
+{
+   if (!_250mS_For_SYS)
+   {
+      return;
+   }
+
+   if ((G_SYS_Self_Test) && (G_Power_Delay_Time == 0))
+   {
+      if (S_Test_cont1 < 0xff)
+      {
+         S_Test_cont1++;
+      }
+   }
+}
+
+// *****************************************************************************
 // 函数名称 : Prg_mS500_DSP
 // 功能说明 : 500mS时间片
 // 入口参数 : 无
@@ -70,7 +99,6 @@ void LED_mS10_Deal(void)
 // 备注     ：
 //
 // *****************************************************************************
-
 void Prg_mS500_DSP(void)
 {
    if (!_500mS_For_SYS)
@@ -196,7 +224,7 @@ void Clear_Display_Data_Buf(void)
 // 入口参数 : 无
 // 出口参数 : 无
 // 当前版本 : V1.0
-// 编写人员 : 许荣乾
+// 编写人员 : Aysi-E
 // 审核人员 :
 // 审核日期 :
 // 修改记录 :   V1.0首次发布
@@ -205,155 +233,141 @@ void Clear_Display_Data_Buf(void)
 // *****************************************************************************
 void LedDsp_Test(void)
 {
-#if 0
-    if(M_test_seq==0)
-    {
-         switch(M_test_cont1)
-         {
-	    case 0: clear_all();break;
-            case 1: dig1_num|=BIT_A;break;
-            case 2: dig1_num|=BIT_B;break;
-            case 3: dig1_num|=BIT_C;break;
-            case 4: dig1_num|=BIT_D;break;
-            case 5: dig1_num|=BIT_E;break;
-            case 6: dig1_num|=BIT_F;break;
-            case 7: dig1_num|=BIT_G;break;
-	    case 8: ;break;
-	    case 9: ;break;
-	    case 10: ;break;
-	    case 11: ;break;
-	    case 12: ;break;
-	    case 13: ;break;
-	    case 14: ;break;
-	    case 15: ;break;
-	    default:
-	    {
-              ;
-	    }break;
-         }
-         dig2_num=dig1_num;
-         //
-         switch(M_test_cont2)
-         {
-	    case 0: {;}break;
-            case 1: {LED_WIFI;}break;
-            case 2: {LED_CON;}break;
-            case 3: {LED_HUM;}break;
-            case 4: {LED_DYR;}break;
-            case 5: {LED_timer;}break;
-            case 6: {LED_PUMP;}break;
-            case 7: {LED_def;}break;
-	    case 8: {LED_water;}break;
-            case 9:
-	    {
-	       dutyindex[0]=8; //绿色
-               dutyindex[1]=100; //红色
-               dutyindex[2]=0;  //蓝色
-	    }break;
-	    case 10:
-	    {
-	       dutyindex[0]=8; //绿色
-               dutyindex[1]=100; //红色
-               dutyindex[2]=0;  //蓝色
-	    }break;
-	    case 11:
-	    {
-	       dutyindex[0]=8; //绿色
-               dutyindex[1]=100; //红色
-               dutyindex[2]=0;  //蓝色
-	    }break;
-            case 12:
-	    {
-	      dutyindex[0]=100; //绿色
-              dutyindex[1]=0; //红色
-              dutyindex[2]=0;  //蓝色
-	    }break;
-	    case 13:
-	    {
-	      dutyindex[0]=100; //绿色
-              dutyindex[1]=0; //红色
-              dutyindex[2]=0;  //蓝色
-	    }break;
-	    case 14:
-	    {
-	      dutyindex[0]=100; //绿色
-              dutyindex[1]=0; //红色
-              dutyindex[2]=0;  //蓝色
-	    }break;
-	    case 15:
-	    {
-	      dutyindex[0]=0;
-              dutyindex[1]=0;
-              dutyindex[2]=100;
-	    }break;
-            case 16:
-	    {
-	      dutyindex[0]=0;
-              dutyindex[1]=0;
-              dutyindex[2]=100;
-	    }break;
-	    case 17:
-	    {
-	      dutyindex[0]=0;
-              dutyindex[1]=0;
-              dutyindex[2]=100;
-	    }break;
-	    default:
-	    {
-	       dutyindex[0]=0;
-               dutyindex[1]=0;
-               dutyindex[2]=0;
-	       M_test_cont2=0;
-	       M_test_cont1=0;
-	    }break;
-        }
-    }
-    if(M_test_seq==1)
-    {
+   static GCE_XDATA UI08 test_key_data = 0; 
+   static GCE_XDATA UI08 test_seq = 0;    
+   GCE_XDATA UI08 key_num = 0;
 
-    }
-    //
-    if(M_test_seq==2)
-    {
-
-		if(Sys_Err.comm_err==ENABLE)
-		{
-			dig1_num=DATA_E;
-			dig2_num=DATA_5;
-		}
-                else if(_Self_Test_wifi_err)
-                {
-			dig1_num=DATA_E;
-			dig2_num=DATA_6;
-		}
-		else
-		{
-				dig1_num=DATA_r;
-				dig2_num=BCD_tab[Soft_Version];
-	        }
+   key_num = Get_Key_Data();
+   Clear_Key_Data;
+   if (test_seq == 0) //显示检测
+   {
+      switch (S_Test_cont1)
+      {
+      case 0:
+      {
+         Clear_Display_Data_Buf();
+         dig1_num = DATA_C;
+         dig2_num = DATA_H;
+      }
+      break;
+      case 1:
+      {
+         LED_water;
+      }
+      break;
+      case 2:
+      {
+         LED_def;
+      }
+      break;
+      case 3:
+      {
+         LED_HUM_MODE;
+      }
+      break;
+      case 4:
+      {
+         LED_DYR_MODE;
+      }
+      break;
+      case 5:
+      {
+         LED_FAN_HIGH;
+      }
+      break;
+      case 6:
+      {
+         LED_FAN_MID;
+      }
+      break;
+      case 7:
+      {
+         LED_FAN_LOW;
+      }
+      break;
+      case 8:
+      {
+         LED_WIFI;
+      }
+      break;
+      case 9:
+      {
+         LED_timer;
+      }
+      break;
+      case 10:
+      {
+         LED_PUMP;
+      }
+      break;
+      default:
+      {
+         S_Test_cont1 = 0;
+      }
+      break;
+      }
    }
-   //
 
-    switch(M_Key_Number)
-	{
-		case power_key:	        S_Test_Key_Data|=bit0;break;
-		case set_hum_key:	        S_Test_Key_Data|=bit1;break;
-	        case set_timer_key:         S_Test_Key_Data|=bit2;break;
-	        case dry_key:	        S_Test_Key_Data|=bit3;break;
-	        case LAMP_key :	        S_Test_Key_Data|=bit4;break;
-		case swing_mode_key:	        S_Test_Key_Data|=bit5;break;
-		case hum_mode_key:   	S_Test_Key_Data|=bit6;break;
-         default:break;
-	}
-	if(M_Key_Number)
-	{M_Buzz_Time=BUZZ_short_time;}
-	M_Key_Number=0;
-        //
-	if(S_Test_Key_Data==0x3f)
-	{M_test_seq=1;}
-	else if(S_Test_Key_Data==0x7f)
-	{M_test_seq=2;}
-#endif
+   if (test_seq == 2) //结果显示
+   {
+      Clear_Display_Data_Buf();
+      if (GET_COM_STATUS() == ERROR)
+      {
+         dig1_num = DATA_E;
+         dig2_num = DATA_5;
+      }
+      else if (G_Uart_Test_Error)
+      {
+         dig1_num = DATA_E;
+         dig2_num = DATA_6;
+      }
+      else if ((GET_TEST_AD() <= 470) || (GET_TEST_AD() >= 550))
+      {
+         dig1_num = DATA_E;
+         dig2_num = DATA_7;
+      }
+      else
+      {
+         dig1_num = DATA_r;
+         dig2_num = BCD_tab[Soft_Version];
+      }
+   }
+
+   switch (key_num) //按键检测
+   {
+   case POWER_KEY:
+      test_key_data |= bit0;
+      break;
+   case MODE_KEY:
+      test_key_data |= bit1;
+      break;
+   case FAN_KEY:
+      test_key_data |= bit2;
+      break;
+   case DOWN_KEY:
+      test_key_data |= bit3;
+      break;
+   case UP_KEY:
+      test_key_data |= bit4;
+      break;
+   case SET_TIME_KEY:
+      test_key_data |= bit5;
+      break;
+   case FILTER_CLEAN_KEY:
+      test_key_data |= bit6;
+      break;
+   default: break;
+   }
+
+   if (test_key_data == 0x7f) //检测完成
+   {
+      test_seq = 2; //跳转至结果显示
+   }
+
+   if (key_num)
+   {
+      G_Buzz_Time = BUZZ_short_time;
+   }
 }
 
 // *****************************************************************************
@@ -497,7 +511,8 @@ void FAN_Speed_Disp(TU_FAN_Speed_Type _fan_buf)
 static void LED_Dsp_Content(void)
 {
    UI08 hum_dsp_com = 60; //显示湿度
-   SHORTCUT_STATUS io_status;
+   // SHORTCUT_STATUS io_status;
+   
    //清除所有显示数据
    Clear_Display_Data_Buf();
 
@@ -654,7 +669,7 @@ static void LED_Dsp_Content(void)
    {
       return;
    }
-
+/* 
    if (G_Pump_Status == ENABLE) //水管接入指示灯
    {
       io_status = GET_PUMP_WATER_PIPE_STATUS();
@@ -666,6 +681,14 @@ static void LED_Dsp_Content(void)
          }
       }
       else
+      {
+         LED_PUMP;
+      }
+   }
+ */
+   if (G_Filter_Run_Time >= FILTER_CLEAN_TIME) //滤网清洗时间
+   {
+      if (S_Flash_mS500)
       {
          LED_PUMP;
       }
@@ -751,6 +774,7 @@ void LED_Display(void)
    CT1642_Disp_Driver(); //调用CT1642驱动程序，让数码管显示
 
    LED_mS10_Deal();
+   Prg_mS250_DSP();
    Prg_mS500_DSP();
    Prg_S_DSP();
 

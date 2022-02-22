@@ -3,9 +3,9 @@
 
 #include "DataType.h"
 
-#define UartSelect 2  //选择UART:0:UART0,1:USCI0,2:USCI1,3:USCI2
-#define UartBaud 9600 //波特率写入
-#define Fsoc 8000000  //主频选择
+#define UartSelect 3        //选择UART:0:UART0,1:USCI0,2:USCI1,3:USCI2
+#define UartBaud 115200     //波特率写入
+#define Fsoc (32000000 / 2) //主频选择
 
 #if (UartSelect == 0)
 #define UART_SFR SBUF

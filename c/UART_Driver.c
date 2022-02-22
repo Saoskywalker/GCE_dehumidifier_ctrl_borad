@@ -45,6 +45,7 @@ void UART_Driver_Init(void)
 	US2CON0 |= 0X50; //串口设置为10位全双工异步通讯
 	US2CON2 = (Fsoc / UartBaud) / 256;
 	US2CON1 = (Fsoc / UartBaud) % 256;
+	IE2 |= bit1; //使能USCI2中断
 #endif
 }
 
@@ -70,16 +71,23 @@ void UART_Txd_Data(void)
 	}
 }
 
-void UartInt(void) interrupt 4
+void UartInt(void) interrupt 16
 {
 	if (READ_TI)
 	{
 		CLEAR_TI;
-		UART_Txd_Data();
+		if (G_SYS_Self_Test)
+			uart_test_send_process();
+		else 
+			UART_Txd_Data();
 	}
 	if (READ_RI)
 	{
-		uart_receive_input(UART_SFR);
+		if (G_SYS_Self_Test)
+			uart_test_receive_process(UART_SFR);
+		else 
+			uart_receive_input(UART_SFR);
+
 		CLEAR_RI;
 	}
 }

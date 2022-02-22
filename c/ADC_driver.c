@@ -24,7 +24,7 @@ GCE_XDATA UI16 S_ADC_Value_Buf;                                     // Ò»¸öÍ¨µÀ²
 GCE_CONST UI08 S_Channel[ADC_channel_total] = {ADC_channel_define}; // ²ÉÑùÍ¨µÀÊý×é
 GCE_XDATA UI08 S_Channel_Ptr = 0;                                   // ²ÉÑùÍ¨µÀÊý¾ÝÏÂ±êÖµ
 
-GCE_XDATA UI16 G_ADC_Value[4]; //´æ´¢ADÖµ
+GCE_XDATA UI16 G_ADC_Value[5]; //´æ´¢ADÖµ
 
 // *****************************************************************************
 // º¯ÊýÃû³Æ : ADC_Init
@@ -155,7 +155,7 @@ void ADC_Sample(void)
     {
         if (S_Channel[S_Channel_Ptr] == Tcomp_channel)
         {
-            COMP_TEMP_AD = S_ADC_Value_Buf;
+            WRITE_TEST_AD(S_ADC_Value_Buf);
         }
 
         if (++S_Channel_Ptr >= ADC_channel_total)
@@ -169,6 +169,6 @@ void ADC_Sample(void)
     }
     else
     {
-        Sample_Loop(1, 3, 33); //Ã¿5msÖ´ÐÐÒ»´Î²ÉÑù,²É10´Î,È¥µôÇ°3´Î,ÔÙÆ½¾ù
+        Sample_Loop(1, 3, 33); //Ã¿5msÖ´ÐÐÒ»´Î²ÉÑù,²É33´Î,È¥µôÇ°3´Î,ÔÙÆ½¾ù
     }
 }

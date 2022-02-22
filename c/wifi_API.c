@@ -68,7 +68,7 @@ void wifi_rssi_Dsp(void)
 //构	建: 	GCE 龙绍平
 //修	改: 	GCE XXX
 ************************************************/
-void prg_250ms_dsp(void)
+void prg_250ms_wifi(void)
 {
      static UI08 ms1500_cnt = 0;
      //
@@ -78,7 +78,7 @@ void prg_250ms_dsp(void)
      }
 
      _Flash_250ms ^= 1;
-     _Self_Test_wifi_TXD_en = 1;
+
      if (++ms1500_cnt >= 6)
      {
           ms1500_cnt = 0;
@@ -482,14 +482,88 @@ void Wifi_UPdata_for_SYSdata_Deal(void)
      SYS_ERR_type = err_buf;
 }
 
+/*************************************************
+ // 函数名称    : Wifi_Self_Test_Deal
+ // 功能描述    : wifi 电路自检
+ // 入口参数    : 无
+ // 出口参数    : 无
+***************************************************/
+static GCE_XDATA unsigned char uart_test_send[] = {0XAA, 0X12, 0X56, 0X69};
+static GCE_XDATA unsigned char uart_test_receive[4] = {0};
+static GCE_XDATA unsigned char uart_test_rec_cnt = 10, uart_test_send_cnt = 10;
+GCE_XDATA UI08 G_Uart_Test_Error = 0;
+static void Wifi_Self_Test_Deal(void)
+{
+     GCE_XDATA unsigned char i = 0;
+     static GCE_XDATA unsigned char overtime = 0;
+
+     //接收
+     if (uart_test_rec_cnt >= sizeof(uart_test_send))
+     {
+          //对比
+          for (i = 0; i < sizeof(uart_test_send); i++)
+          {
+               if (uart_test_receive[i] != uart_test_send[i])
+                    break;
+          }
+
+          if (i == sizeof(uart_test_send))
+               overtime = 0; // b
+     }
+
+     if (!_500mS_For_SYS)
+          return;
+
+     if (++overtime >= 3)
+          G_Uart_Test_Error = 1;
+     else
+          G_Uart_Test_Error = 0;
+
+     //发送
+     if (uart_test_send_cnt >= sizeof(uart_test_send))
+     {
+          uart_test_rec_cnt = 0;
+          uart_test_send_cnt = 0;
+          uart_test_send_process();
+     }
+}
+
+void uart_test_receive_process(unsigned char d)
+{
+     if (uart_test_rec_cnt < sizeof(uart_test_send))
+     {
+          uart_test_receive[uart_test_rec_cnt] = d;
+          uart_test_rec_cnt++;
+     }
+}
+
+void uart_test_send_process(void)
+{
+     if (uart_test_send_cnt < sizeof(uart_test_send))
+     {
+          UART_SFR = uart_test_send[uart_test_send_cnt];
+          uart_test_send_cnt++;
+     }
+}
+
 void WIFI_Deal(void)
 {
-     Wifi_UPdata_for_SYSdata_Deal();
-     prg_250ms_dsp();
-     prg_s_wifi();
-     wifi_status_DSP();
+     if (G_SYS_Self_Test)
+     {
+          Wifi_Self_Test_Deal();
+     }
+     else
+     {
+          if (G_Sys_Config.Wifi == ENABLE)
+          {
+               Wifi_UPdata_for_SYSdata_Deal();
+               prg_250ms_wifi();
+               prg_s_wifi();
+               wifi_status_DSP();
 
-     wifi_uart_service();
-     all_data_update();
-     Data_update_deal();
+               wifi_uart_service();
+               all_data_update();
+               Data_update_deal();
+          }
+     }
 }

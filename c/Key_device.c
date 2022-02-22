@@ -199,6 +199,18 @@ void Dev_Get_Key_Number(void)
 		S_Shake_Count = 0xff;
 	}
 
+	if ((S_Key_Last == 300) && (S_Key_Data == ((0x01 << (POWER_KEY - 1)) | (0x01 << (SET_TIME_KEY - 1)))))
+	{
+		G_Key_Number = COMP_OVERTIME_PROTECT_KEY;
+		S_Shake_Count = 0xff;
+	}
+
+	if(Enter_Test_Judge(S_Key_One_Buf)) //判断是否进入PCB生产自检
+	{
+		G_Key_Number = SELF_TEST_KEY;
+		S_Shake_Count = 0xff;
+	}
+
 	if ((S_Key_Last == 1000) && (S_Key_Data == (0x01 << (POWER_KEY - 1))) && (S_Comp_Test_Key_Count > S_Key_Last) && ((S_Comp_Test_Key_Count - S_Key_Last) > 10) //上电前100按下视为无效
 		&& ((S_Comp_Test_Key_Count - S_Key_Last) < (300 - 10))																									 //需要在上电全显示期间
 	)
@@ -207,31 +219,34 @@ void Dev_Get_Key_Number(void)
 		S_Shake_Count = 0xff;
 	}
 
-	//长按电源键
-	// wifi复位/配网模式切换    在联网的状态下-wifi复位 未联网状态下切换配网方式
-	if ((S_Key_Last == 500) && (S_Key_Data == (0x01 << (POWER_KEY - 1))))
+	if (G_Sys_Config.Wifi == ENABLE)
 	{
-		G_Key_Number = WIFI_RESET_KEY;
-		S_Shake_Count = 0xff;
-	}
-
-	//威技wifi模块产测
-	/*
-	待機狀態下前5秒內,長按風速鍵(SW2)5秒發送一次Wifi模产检模式指令
-	連接產檢賬號成功後,Wifi指示燈點亮,,雙八燈顯示信號強度.立即清除模塊賬號信息並機臺恢復默認設置.
-	退出條件:1.按電源鍵開機或斷電
-			 2.進入產檢模式時間超過3分鐘.
-	 工廠模式時,信號低於60,不點亮Wifi指示燈.
-	*/
-	if ((WIFI_Self_Test_delay_time > 0) && (S_Key_Data == (0x01 << (FAN_KEY - 1))))
-	{
-		WIFI_Self_Test_delay_time = WIFI_SELF_TEST_IN_TIMER;
-		if (S_Key_Last == 500)
+		//长按电源键
+		// wifi复位/配网模式切换    在联网的状态下-wifi复位 未联网状态下切换配网方式
+		if ((S_Key_Last == 500) && (S_Key_Data == (0x01 << (POWER_KEY - 1))))
 		{
-			WIFI_Self_Test_delay_time = 0;
-
-			G_Key_Number = WIFI_TEST_KEY;
+			G_Key_Number = WIFI_RESET_KEY;
 			S_Shake_Count = 0xff;
+		}
+
+		//威技wifi模块产测
+		/*
+		待機狀態下前5秒內,長按風速鍵(SW2)5秒發送一次Wifi模产检模式指令
+		連接產檢賬號成功後,Wifi指示燈點亮,,雙八燈顯示信號強度.立即清除模塊賬號信息並機臺恢復默認設置.
+		退出條件:1.按電源鍵開機或斷電
+				 2.進入產檢模式時間超過3分鐘.
+		 工廠模式時,信號低於60,不點亮Wifi指示燈.
+		*/
+		if ((WIFI_Self_Test_delay_time > 0) && (S_Key_Data == (0x01 << (FAN_KEY - 1))))
+		{
+			WIFI_Self_Test_delay_time = WIFI_SELF_TEST_IN_TIMER;
+			if (S_Key_Last == 500)
+			{
+				WIFI_Self_Test_delay_time = 0;
+
+				G_Key_Number = WIFI_TEST_KEY;
+				S_Shake_Count = 0xff;
+			}
 		}
 	}
 }

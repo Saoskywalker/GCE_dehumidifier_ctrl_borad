@@ -23,11 +23,12 @@
 #define ADC_channel_define Tcomp_channel
 #define ADC_channel_total 1
 
-extern GCE_XDATA UI16 G_ADC_Value[4]; //?ÇôADÔ«
+extern GCE_XDATA UI16 G_ADC_Value[5];
 #define ROOM_TEMP_AD G_ADC_Value[0]
 #define COIL_TEMP_AD G_ADC_Value[1]
 #define HUM_AD G_ADC_Value[2]
 #define COMP_TEMP_AD G_ADC_Value[3]
+#define TEST_AD G_ADC_Value[4]
 
 extern void ADC_Init(void);
 extern void ADC_Sample(void);
@@ -43,5 +44,8 @@ extern void ADC_Sample(void);
 
 #define GET_COMP_TEMP_AD(void) COMP_TEMP_AD
 #define WRITE_COMP_TEMP_AD(a) COMP_TEMP_AD = a
+
+#define GET_TEST_AD(void) TEST_AD
+#define WRITE_TEST_AD(a) TEST_AD = a
 
 #endif
