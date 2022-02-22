@@ -1,6 +1,6 @@
 #include "General.h"
 
-GCE_XDATA TU_EEP_Data S_Sys_Memory_Data;     // EEP校验数组
+GCE_XDATA TU_EEP_Data S_Sys_Memory_Data;     // EEP数组
 GCE_XDATA TU_EEP_Data S_Sys_Memory_Data_Buf; // EEP校验数组
 
 GCE_XDATA UI16 EEP_OffSet_DATA_ADDR = 0; //写EEP偏移的地址(0x00~511,一页为512)
@@ -48,8 +48,9 @@ static void Sys_Data_Write(void)
     S_Sys_Memory_Data_Buf.S_data.E_SYS_Hum_Set = (UI08)G_SYS_Hum_Set_Buf;
     S_Sys_Memory_Data_Buf.S_data.E_SYS_Fan_Tyde = (UI08)G_SYS_Fan_Tyde_Buf;
     S_Sys_Memory_Data_Buf.S_data.E_Pump_Status = (UI08)G_Pump_Status;
+    S_Sys_Memory_Data_Buf.S_data.E_Comp_Overtime_Protect_Flag = (UI08)G_Comp_Overtime_Protect_Flag;
 
-    for (i = 0; i < EEP_MAX; i++)
+    for (i = 0; i < EEP_MAX; i++) //数据对比， 不同则重新写eep
     {
         if (S_Sys_Memory_Data.EEP_data[i] != S_Sys_Memory_Data_Buf.EEP_data[i])
         {
@@ -240,6 +241,8 @@ void Sys_Data_Read_EEP(void)
         return;
     }
 
+    G_Comp_Overtime_Protect_Flag = (TE_FuncState)S_Sys_Memory_Data.S_data.E_Comp_Overtime_Protect_Flag;
+
     G_SYS_Power_Status = (ONOFF_STATUS)S_Sys_Memory_Data.S_data.E_SYS_Power_Status;
     if (G_SYS_Power_Status == ON)
     {
@@ -266,6 +269,78 @@ void Sys_Data_Read_EEP(void)
 
     G_Pump_Status = (TE_FuncState)S_Sys_Memory_Data.S_data.E_Pump_Status; //水泵
 }
+
+// *****************************************************************************
+// 函数名称 : Sys_Data_Write_2
+// 功能说明 : 写入EEP第二区域的数据
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : Aysi-E
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+/* static void Sys_Data_Write_2(void)
+{
+    UI08 i, crc;
+    GCE_XDATA UI08 Sys_Memory_Data[6] = {0}; //数据头部，数据。。。。， 数据校验码
+
+    for (i = 0; i < sizeof(Sys_Memory_Data); i++)
+    {
+        Sys_Memory_Data[i] = IAPRead(IapCheckNum_ADDR + i, IapROM);
+    }
+
+    crc = CRC_Check(&Sys_Memory_Data[0], sizeof(Sys_Memory_Data) - 1); // CRC校验
+    //校验   || 写的范围已满  擦除从新开始
+    if ((0xaa != Sys_Memory_Data[0]) || (crc != Sys_Memory_Data[5]))
+    {
+        IAPPageErase(SYS_DATA_ADDR, IapROM);
+    }
+    else
+    {
+        G_Comp_Overtime_Protect_Flag = Sys_Memory_Data[1];
+    }
+} */
+
+// *****************************************************************************
+// 函数名称 : Sys_Data_Read_2
+// 功能说明 : 读EEP第二区域的数据
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : Aysi-E
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+/* static void Sys_Data_Read_2(void)
+{
+    UI08 i, j;
+    GCE_XDATA UI08 Sys_Memory_Data[6] = {0}; //数据头部，数据。。。。， 数据校验码
+
+    j = IAPRead(IapCheckNum_ADDR + 1, IapROM);
+    if (G_Comp_Overtime_Protect_Flag == j)
+        return;
+
+    Sys_Memory_Data[0] = 0XAA;
+    Sys_Memory_Data[1] = (UI08)G_Comp_Overtime_Protect_Flag;
+    Sys_Memory_Data[2] = 0;
+    Sys_Memory_Data[3] = 0;
+    Sys_Memory_Data[4] = 0;
+    Sys_Memory_Data[5] = CRC_Check(&Sys_Memory_Data[0], sizeof(Sys_Memory_Data) - 1); // CRC校验
+
+    //写入
+    IAPPageErase(IapCheckNum_ADDR, IapROM);
+    for (i = 0; i < sizeof(Sys_Memory_Data); i++)
+    {
+        IAPWrite(IapCheckNum_ADDR + i, Sys_Memory_Data[i], IapROM);
+    }
+} */
 
 // *****************************************************************************
 // 函数名称 : EEP_deal

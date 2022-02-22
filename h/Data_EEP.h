@@ -7,7 +7,7 @@
 
 #define IapCheckNum_ADDR (0xffff - 511) //存储程序是否升级正常(最后一页)
 
-#define SYS_DATA_ADDR (0xffff - 1023) //机型参数存储(倒数第二)
+#define SYS_DATA_ADDR (0xffff - 1023) //机型参数存储(倒数第二页)
 
 #define SECTION_SIZE (512) //扇区大小
 
@@ -26,7 +26,7 @@ union U_EEP
 		UI08 E_SYS_Hum_Set;		   // 5 设定湿度目标值
 		UI08 E_SYS_Fan_Tyde;	   // 6 运行风速
 		UI08 E_Pump_Status;		   // 7
-		UI08 E_buf1;			   // 8
+		UI08 E_Comp_Overtime_Protect_Flag;			   // 8
 		UI08 E_buf2;			   // 9
 		UI08 E_buf3;			   // 10
 		UI08 E_buf4;			   // 11
