@@ -13,13 +13,10 @@ extern GCE_XDATA UI08 S_Time_Set_IN;       //是否进行了定时设置
 
 extern GCE_XDATA UI08 G_Power_Delay_Time; //系统开机延时
 
-extern GCE_XDATA UI08 M_test_seq;   //自检
-extern GCE_XDATA UI08 M_test_cont1; //自检
-extern GCE_XDATA UI08 M_test_cont2; //自检
-
 extern GCE_XDATA TS_SYS_Err G_Sys_Err;                //故障
 extern GCE_XDATA TE_FuncState G_SYS_Self_Test;        //自检标志
 extern GCE_XDATA TE_FuncState G_SYS_Fast_Test;        // 快测标志
+extern GCE_XDATA TE_FuncState G_Comp_Overtime_Protect_Flag; //压缩机连续运行停机标记
 extern GCE_XDATA ONOFF_STATUS G_SYS_Power_Status;     //开关机状态
 extern GCE_XDATA ONOFF_STATUS G_SYS_Power_Status_Old; // 开关机状态
 
@@ -71,6 +68,7 @@ extern void Set_Timer_Up(void);
 extern void Set_Timer_Down(void);
 
 extern void Set_Hum_Up(void);
+extern void Filter_Clean(void);
 extern void Set_Hum_Down(void);
 extern void Set_SYS_Mode(void);
 extern void Set_SYS_Mode(void);
@@ -81,5 +79,8 @@ extern void Set_In_Fast_Test(void);
 extern void Set_In_Comp_Test(void);
 extern void Set_RESET_WIFI(void);
 extern void Set_TEST_WIFI(void);
+extern void Set_Comp_Overtime_Protect(void);
+extern UI08 Enter_Test_Judge(UI08 key);
+extern void Set_In_Self_Test(void);
 
 #endif

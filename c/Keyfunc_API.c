@@ -64,9 +64,9 @@ static void Key_Decode(void)
 	}
 	break;
 
-	case PUMP_KEY:
+	case FILTER_CLEAN_KEY:
 	{
-		Set_Pump_Status();
+		Filter_Clean();
 	}
 	break;
 
@@ -87,22 +87,37 @@ static void Key_Decode(void)
 		Set_In_Fast_Test();
 	};
 	break;
+
 	case COMP_TEST_KEY:
 	{
 		Set_In_Comp_Test();
 	}
 	break;
+
 	case WIFI_RESET_KEY:
 	{
 		Set_RESET_WIFI();
 	}
 	break;
+
 	case WIFI_TEST_KEY:
 	{
 		Set_TEST_WIFI();
 	}
 	break;
-		//
+
+	case COMP_OVERTIME_PROTECT_KEY:
+	{
+		Set_Comp_Overtime_Protect();
+	}
+	break;
+
+	case SELF_TEST_KEY:
+	{
+		Set_In_Self_Test();
+	}
+	break;
+
 	default:
 	{
 	}

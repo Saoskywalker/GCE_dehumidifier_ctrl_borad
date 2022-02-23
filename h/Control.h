@@ -4,11 +4,12 @@
 //=================需要配置变量==================================================
 #define COMP_PROTECT_ON_TIME 180  //压缩机开保护时间
 #define COMP_PROTECT_OFF_TIME 180 //压缩机关保护时间
+#define FILTER_CLEAN_TIME (60UL * 250) //滤网清洗时间, 250h
 
 //===========除霜参数
 #define defrost_para1 (10 * 60)  //压缩机运转X分钟后开始计时
-#define defrost_para2 252        // 0度对应AD值  (10/(10+28.38))*1024-1=266   0度改为-2度
-#define defrost_para3 314        // 5度对应AD值  (10/(10+22.72))*1024-1=312
+#define defrost_para2 134        // 0度对应AD值  (10/(10+28.38))*1024-1=266
+#define defrost_para3 157        // 5度对应AD值  (10/(10+22.72))*1024-1=312
 #define defrost_para4 (10 * 60)  //计时过程中X分钟判断管温
 #define defrost_para5 (19 * 60)  //计时过程中Y分钟判断管温
 #define defrost_para6 (20 * 60)  //除霜开始时间计时
@@ -18,6 +19,7 @@
 #define defrost_para10 (4)       //第X次除霜，除霜时间延长
 #define defrost_para11 (15 * 60) //第X次除霜，除霜时间延长至Y分钟
 #define defrost_para12 (15 + 9)  //铜管故障时，以室温判断 <15
+
 //==================对外接口===============================================================
 
 extern GCE_XDATA TU_Def_Reg G_Def_Reg;

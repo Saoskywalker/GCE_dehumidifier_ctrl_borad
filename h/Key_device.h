@@ -11,16 +11,18 @@
 #define DOWN_KEY 5
 
 #define MODE_KEY 2
-#define PUMP_KEY 7
+#define FILTER_CLEAN_KEY 7
+// #define PUMP_KEY 7
 
 #define SELF_TEST_KEY 0XF0
 #define COMP_TEST_KEY 0Xf8
 
 #define WIFI_RESET_KEY 0Xf9
 #define WIFI_TEST_KEY 0XfA
-//组合长按键
 
+//组合长按键
 #define FAST_TEST_KEY 21
+#define COMP_OVERTIME_PROTECT_KEY 23
 
 #define WIFI_SELF_TEST_KEY_TIMER 5 //长按按键时间
 #define WIFI_SELF_TEST_IN_TIMER 5  //允许进入等待时间

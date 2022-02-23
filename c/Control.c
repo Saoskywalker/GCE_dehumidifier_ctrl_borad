@@ -19,8 +19,8 @@ GCE_XDATA TU_Def_Reg G_Def_Reg; //除霜变量
 GCE_XDATA UI16 G_Fan_Force_Run_Time = 180; //每次按键或者定时开机，或者水满回复风机强制运行时间
 
 GCE_XDATA UI08 S_Filter_Minute_Count = 0; //滤网计时
-GCE_XDATA UI16 G_Filter_Run_Time = 0;     //滤网时间
-GCE_XDATA UI16 G_Filter_Run_Time_Buf = 0; //滤网时间
+GCE_XDATA UI16 G_Filter_Run_Time = 0;     //滤网时间, 单位:分钟
+GCE_XDATA UI16 G_Filter_Run_Time_Buf = 0; //滤网时间, 单位:分钟
 
 GCE_XDATA TU_Step S_High_T_P2_Step = Step0;
 
@@ -155,12 +155,6 @@ static void Filter_Time_Logic(void)
       {
          G_Filter_Run_Time_Buf = G_Filter_Run_Time;
       }
-   }
-   //
-   if (G_Filter_Run_Time >= 60UL * 250) //滤网清洗时间
-   {
-      G_Filter_Run_Time = 0;
-      G_Filter_Run_Time_Buf = G_Filter_Run_Time;
    }
 }
 
@@ -460,7 +454,7 @@ static void Ec_Protect1_Logic(void)
 // 备注     ：
 //
 // *****************************************************************************
-static void Ec_Protect2_Logic(void)
+/* static void Ec_Protect2_Logic(void)
 {
    UI08 g_dt = 0; //计算温差
    UI08 temp_room_C;
@@ -555,7 +549,7 @@ static void Ec_Protect2_Logic(void)
    break;
    }
 }
-
+ */
 // *****************************************************************************
 // 函数名称 : Ec_Protect_Deal
 // 功能说明 : 冷媒保护总入口
@@ -905,23 +899,16 @@ static void Sys_Sensor_Err_Deal(void)
       G_Sys_Err.hum_Sensor_err = DISABLE;
    }
 
-   if ((G_SYS_Power_Status) && ((G_SYS_Mode == mode_DRY) || (G_SYS_Mode == mode_SYS_HUM)) //需要压缩机开启的模式
-   )
+   if ((G_SYS_Power_Status) && ((G_SYS_Mode == mode_DRY) || (G_SYS_Mode == mode_SYS_HUM))) //需要压缩机开启的模式
    {
       if ((G_Sys_Err.temp_room_err)     //室温故障
           || (G_Sys_Err.temp_coil_err)  //管温故障
           || (G_Sys_Err.hum_Sensor_err) //湿度故障
+          || (G_Sys_Err.temp_comp_err)  //吐出管温故障
       )
       {
-         G_Comp_Para.BUF = ON;
-         if (G_SYS_Mode == mode_DRY)
-         {
-            S_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
-         }
-         else if (G_SYS_Mode == mode_SYS_HUM)
-         {
-            S_Fan_Tyde_Out_Buf = HIGH_FAN;
-         }
+         G_Comp_Para.BUF = OFF;
+         S_Fan_Tyde_Out_Buf = OFF_FAN;
       }
    }
 }
@@ -941,20 +928,13 @@ static void Sys_Sensor_Err_Deal(void)
 // *****************************************************************************
 static void Comp_OverLoad(void)
 {
-
-   if (G_Comp_Para.on_time >= 3600UL * 12) //连续运行12小时停止, 休息1小时再开
+   if (G_Comp_Overtime_Protect_Flag)
    {
-      Comp_SA_EN = ENABLE;
-   }
-   else if (G_Comp_Para.off_time >= 3600)
-   {
-      Comp_SA_EN = DISABLE;
-   }
-
-   if (Comp_SA_EN == ENABLE)
-   {
-      G_Comp_Para.BUF = OFF;
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      if (G_Comp_Para.on_time >= 3600UL * 12) //连续运行12小时变待机
+      {
+         Set_Power_Status();
+         G_Fan_Force_Run_Time = 0;
+      }
    }
 }
 
@@ -1473,6 +1453,10 @@ static void Comp_Safe_Logic(void)
           || (G_Comp_Para.OUT == OFF)                     //压缩机原本为关
           || (S_High_T_P2_Step == Step1)                  //高温保护逻辑2，室温大于42度，强制关闭压缩机
           || (G_Comp_Para.on_time > COMP_PROTECT_ON_TIME) //压缩最小运行时间到
+          || (G_Sys_Err.temp_room_err)                    //室温故障
+          || (G_Sys_Err.temp_coil_err)                    //管温故障
+          || (G_Sys_Err.hum_Sensor_err)                   //湿度故障
+          || (G_Sys_Err.temp_comp_err)                    //吐出管温故障
       )
       {
          G_Comp_Para.OUT = OFF;
@@ -1682,16 +1666,16 @@ static void Hum_Mode_Logic(void)
    }
 
    //风机
-   if ((G_Comp_Para.OUT == ON)        //压缩机运转时
-       || (G_Fan_Force_Run_Time > 0)) //每次按电源键开机、定时到开机，或者水满报警解除之后风机强制按设定风速运转3分钟
-   {
-      S_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
-   }
-   else
-   {
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
-   }
-
+   // if ((G_Comp_Para.OUT == ON)        //压缩机运转时
+   //     || (G_Fan_Force_Run_Time > 0)) //每次按电源键开机、定时到开机，或者水满报警解除之后风机强制按设定风速运转3分钟
+   // {
+   //    S_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
+   // }
+   // else
+   // {
+   //    S_Fan_Tyde_Out_Buf = OFF_FAN;
+   // }
+   S_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
    G_Set_Fan_Tyde_EN = ENABLE;
 }
 

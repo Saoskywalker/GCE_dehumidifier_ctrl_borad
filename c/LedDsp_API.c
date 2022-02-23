@@ -544,8 +544,8 @@ static void LED_Dsp_Content(void)
       {
          LED_water;
       }
-      dig1_num = DATA_F;
-      dig2_num = DATA_U;
+      // dig1_num = DATA_F;
+      // dig2_num = DATA_U;
       return;
    }
 

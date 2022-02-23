@@ -1,6 +1,6 @@
 #include "General.h"
 
-GCE_XDATA TS_SYS_Config G_Sys_Config;
+GCE_XDATA TS_SYS_Config G_Sys_Config; //软件功能选择设置(按机型需求设置, 设置后用户不能更改)
 
 GCE_XDATA UI32 G_Time_Run = 0;          //定时剩余时间
 GCE_XDATA UI08 G_Time_Set = 1;          //定时设定时间
@@ -17,6 +17,7 @@ GCE_XDATA UI08 G_Test_Cont2 = 0; //自检
 GCE_XDATA TS_SYS_Err G_Sys_Err;                   //故障
 GCE_XDATA TE_FuncState G_SYS_Self_Test = DISABLE; //自检标志
 GCE_XDATA TE_FuncState G_SYS_Fast_Test = DISABLE; // 快测标志
+GCE_XDATA TE_FuncState G_Comp_Overtime_Protect_Flag = ENABLE; //压缩机连续运行停机标记
 
 //
 GCE_XDATA ONOFF_STATUS G_SYS_Power_Status = OFF;     // 开关机状态
@@ -75,8 +76,8 @@ void SYS_Data_Rest(void)
     G_SYS_Mode_Buf = mode_SYS_HUM; //系统模式
     S_Set_SYS_Mode_Time = 0;       //模式设定时间
 
-    G_SYS_Hum_Set = 60;     //湿度设定
-    G_SYS_Hum_Set_Buf = 60; //湿度设定buf
+    G_SYS_Hum_Set = 30;     //湿度设定
+    G_SYS_Hum_Set_Buf = 30; //湿度设定buf
     G_Set_SYS_Hum_Time = 0; //湿度设定(确认时间)
 
     G_SYS_Fan_Tyde = LOW_FAN;     //运行风速
@@ -105,6 +106,7 @@ void SYS_Data_Rest(void)
 void SYS_Data_Init(void)
 {
     G_Sys_Config.Auto_Restart = ENABLE;
+    G_Sys_Config.Wifi = DISABLE;
 
     Adc_Data_Init();
     Control_data_init();
@@ -366,7 +368,7 @@ void Sys_Initial(void)
 {
     EA = 0;
     IO_Init();
-    // ADC_Init();
+    ADC_Init();
     Timer_Init();
     TouchKeyInit();
 
@@ -427,12 +429,6 @@ void Set_Power_Status(void)
 {
     G_Buzz_Time = BUZZ_long_time;
 
-    if (G_SYS_Fast_Test)
-    {
-        G_SYS_Fast_Test = DISABLE;
-        return;
-    }
-
     if (G_SYS_Power_Status == ON)
     {
         Turn_Off();
@@ -445,11 +441,6 @@ void Set_Power_Status(void)
         {
             G_Disp_SA_Time = 30;
         }
-    }
-
-    if (G_SYS_Fast_Test)
-    {
-        G_SYS_Fast_Test = DISABLE;
     }
 }
 
@@ -519,7 +510,7 @@ void Set_Hum_Up(void)
     G_Set_SYS_Hum_Time = 50;
     G_Buzz_Time = BUZZ_short_time;
 
-    if (G_SYS_Hum_Set_Buf < 60)
+    if (G_SYS_Hum_Set_Buf < 70)
     {
         G_SYS_Hum_Set_Buf += 5;
     }
@@ -580,7 +571,7 @@ void Set_Timer_Up(void)
     G_Time_Setting_Time = 50;
     S_Time_Set_IN = 1;
     G_Buzz_Time = BUZZ_short_time;
-    if (G_Time_Buf < 8)
+    if (G_Time_Buf < 12)
     {
         G_Time_Buf++;
     }
@@ -614,7 +605,7 @@ void Set_Timer_Down(void)
     }
     else
     {
-        G_Time_Buf = 8;
+        G_Time_Buf = 12;
     }
 }
 
@@ -817,7 +808,7 @@ void Set_SYS_Mode(void)
 // 备注     ：
 //
 // *****************************************************************************
-void Set_Pump_Status(void)
+/* void Set_Pump_Status(void)
 {
     if (G_SYS_Power_Status == OFF)
     {
@@ -837,6 +828,36 @@ void Set_Pump_Status(void)
     else
     {
         G_Pump_Status = ENABLE;
+    }
+
+    G_Buzz_Time = BUZZ_short_time;
+} */
+
+// *****************************************************************************
+// 函数名称 : Filter_Clean
+// 功能说明 : 清洁滤网
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : Aysi-E
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+void Filter_Clean(void)
+{
+    if (G_SYS_Power_Status == OFF)
+    {
+        Key_ERR_Buzz_Cnt = 3;
+        return;
+    }
+
+    if (G_Filter_Run_Time >= FILTER_CLEAN_TIME) //滤网清洗时间
+    {
+        G_Filter_Run_Time = 0;
+        G_Filter_Run_Time_Buf = G_Filter_Run_Time;
     }
 
     G_Buzz_Time = BUZZ_short_time;
@@ -1037,6 +1058,72 @@ void Set_TEST_WIFI(void)
 }
 
 // *****************************************************************************
+// 函数名称 : Set_Comp_Overtime_Protect
+// 功能说明 : 压缩机连续运行停机标记
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : Aysi-E
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+void Set_Comp_Overtime_Protect(void)
+{   
+    if(G_SYS_Power_Status)
+        return;
+
+    if (G_Comp_Overtime_Protect_Flag)
+        G_Comp_Overtime_Protect_Flag = DISABLE;
+    else
+        G_Comp_Overtime_Protect_Flag = ENABLE;
+
+    G_Buzz_Time = BUZZ_short_time;
+}
+
+// *****************************************************************************
+// 函数名称 : Enter_Test_Judge
+// 功能说明 : 判断是否进入自检
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : Aysi-E
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+UI08 Enter_Test_Judge(UI08 key)
+{
+    static GCE_XDATA UI08 key_power_delay = 100;
+    static GCE_XDATA UI16 keep_cnt = 0;
+
+    if (key_power_delay > 0) // 3s
+    {
+        key_power_delay--;
+        if (key == UP_KEY)
+        {
+            keep_cnt++;
+            key_power_delay = 10;
+        }
+    }
+
+    if (keep_cnt >= 300)
+    {
+        keep_cnt = 0;
+        key_power_delay = 0;
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+// *****************************************************************************
 // 函数名称 : Set_In_Self_Test
 // 功能说明 : 进入自检 参数恢复出厂设置
 // 入口参数 : 无
@@ -1051,16 +1138,15 @@ void Set_TEST_WIFI(void)
 // *****************************************************************************
 void Set_In_Self_Test(void)
 {
-    //
     G_Buzz_Time = BUZZ_long_time;
     G_SYS_Self_Test = ENABLE;
     G_Communication_Time = 2;
     //自检写入系统默认参数
     G_SYS_Power_Status = OFF;
-    G_SYS_Hum_Set = 60;
+    G_SYS_Hum_Set = 30;
     G_SYS_Mode = mode_SYS_HUM;
     G_SYS_Mode_Buf = mode_SYS_HUM;
-
+    G_Comp_Overtime_Protect_Flag = ENABLE;
     G_Pump_Status = DISABLE;
     G_Filter_Run_Time = 0;
 }
