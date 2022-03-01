@@ -36,7 +36,8 @@
  * @brief  天气数据参数选择数组
  * @note   用户可以自定义需要的参数，注释或者取消注释即可，注意更改
  */
-const char *weather_choose[WEATHER_CHOOSE_CNT] = {
+const char *weather_choose[WEATHER_CHOOSE_CNT] =
+{
     "temp",
     "humidity",
     "condition",
@@ -77,15 +78,15 @@ const char *weather_choose[WEATHER_CHOOSE_CNT] = {
 ******************************************************************************/
 code DOWNLOAD_CMD_S download_cmd[] =
 {
-  {DPID_SWITCH, DP_TYPE_BOOL},
-  {DPID_DEHUMIDIFY_SET_VALUE, DP_TYPE_VALUE},
-  {DPID_FAN_SPEED_ENUM, DP_TYPE_ENUM},
-  {DPID_MODE, DP_TYPE_ENUM},
-  {DPID_HUMIDITY_INDOOR, DP_TYPE_VALUE},
-  {DPID_FAULT, DP_TYPE_BITMAP},
-  {DPID_TANK_FULL, DP_TYPE_BOOL},
-  {DPID_DEFROST_STATUS, DP_TYPE_BOOL},
-  {DPID_PUMP, DP_TYPE_BOOL},
+    {DPID_SWITCH, DP_TYPE_BOOL},
+    {DPID_DEHUMIDIFY_SET_VALUE, DP_TYPE_VALUE},
+    {DPID_FAN_SPEED_ENUM, DP_TYPE_ENUM},
+    {DPID_MODE, DP_TYPE_ENUM},
+    {DPID_HUMIDITY_INDOOR, DP_TYPE_VALUE},
+    {DPID_FAULT, DP_TYPE_BITMAP},
+    {DPID_TANK_FULL, DP_TYPE_BOOL},
+    {DPID_DEFROST_STATUS, DP_TYPE_BOOL},
+    {DPID_PUMP, DP_TYPE_BOOL},
 };
 
 
@@ -103,13 +104,13 @@ code DOWNLOAD_CMD_S download_cmd[] =
 #if 0
 void uart_transmit_output(unsigned char value)
 {
-    #error "请将MCU串口发送函数填入该函数,并删除该行"
+#error "请将MCU串口发送函数填入该函数,并删除该行"
 
-/*
-    //Example:
-    extern void Uart_PutChar(unsigned char value);
-    Uart_PutChar(value);	                                //串口发送函数
-*/
+    /*
+        //Example:
+        extern void Uart_PutChar(unsigned char value);
+        Uart_PutChar(value);	                                //串口发送函数
+    */
 }
 #endif
 /******************************************************************************
@@ -136,10 +137,10 @@ void uart_transmit_output(unsigned char value)
  * @return Null
  * @note   此函数SDK内部需调用，MCU必须实现该函数内数据上报功能，包括只上报和可上报可下发型数据
  */
- #if 0
+#if 0
 void all_data_update(void)
 {
-    #error "请在此处理可下发可上报数据及只上报数据示例,处理完成后删除该行"
+#error "请在此处理可下发可上报数据及只上报数据示例,处理完成后删除该行"
     /*
     //此代码为平台自动生成，请按照实际数据修改每个可下发可上报函数和只上报函数
     mcu_dp_bool_update(DPID_SWITCH,当前开关); //BOOL型数据上报;
@@ -179,25 +180,25 @@ static unsigned char dp_download_switch_handle(const unsigned char value[], unsi
     switch_1 = mcu_get_dp_download_bool(value,length);
     if(switch_1 == 0)
     {
-       Turn_Off(); //bool off
+        Turn_Off(); //bool off
     }
     else
     {
-           Turn_On();
-           G_Fan_Force_Run_Time = 180;
-	   if(Comp_SA_EN == ENABLE)
-	    {
-               G_Disp_SA_Time=30;
-	    }  //bool on
+        Turn_On();
+        G_Fan_Force_Run_Time = 180;
+        if(Comp_SA_EN == ENABLE)
+        {
+            G_Disp_SA_Time=30;
+        }  //bool on
     }
 
-   if (G_SYS_Fast_Test)
-   {
-       G_SYS_Fast_Test = DISABLE;
-   }
-   G_Buzz_Time = BUZZ_long_time;
+    if (G_SYS_Fast_Test)
+    {
+        G_SYS_Fast_Test = DISABLE;
+    }
+    G_Buzz_Time = BUZZ_long_time;
 
-   Wifi_Updata.SYS_Power_Status=G_SYS_Power_Status;
+    Wifi_Updata.SYS_Power_Status=G_SYS_Power_Status;
     //There should be a report after processing the DP
     ret = mcu_dp_bool_update(DPID_SWITCH,switch_1);
     if(ret == SUCCESS)
@@ -217,7 +218,7 @@ static unsigned char dp_download_dehumidify_set_value_handle(const unsigned char
 {
     //示例:当前DP类型为VALUE
     unsigned char ret;
-    unsigned long dehumidify_set_value;
+    xdata unsigned long dehumidify_set_value;
 
     dehumidify_set_value = mcu_get_dp_download_value(value,length);
     /*
@@ -226,17 +227,18 @@ static unsigned char dp_download_dehumidify_set_value_handle(const unsigned char
     */
     if (G_SYS_Mode_Buf != mode_SYS_HUM)
     {
-         Key_ERR_Buzz_Cnt = 3;
+        //Key_ERR_Buzz_Cnt = 3;
     }
     else
     {
         G_SYS_Hum_Set_Buf =  dehumidify_set_value ;
         G_SYS_Hum_Set =  G_SYS_Hum_Set_Buf ;
+	G_SYS_Hum_WIFI_Set_Buf = G_SYS_Hum_Set_Buf ;
         Wifi_Updata.SYS_Hum_Set=G_SYS_Hum_Set;
         G_Buzz_Time = BUZZ_short_time;
         G_Set_SYS_Hum_Time = 50;
 
-	Wifi_Updata.SYS_Hum_Set=G_SYS_Hum_Set;
+        Wifi_Updata.SYS_Hum_Set=G_SYS_Hum_Set;
     }
     //There should be a report after processing the DP
     ret = mcu_dp_value_update(DPID_DEHUMIDIFY_SET_VALUE,dehumidify_set_value);
@@ -263,37 +265,59 @@ static unsigned char dp_download_fan_speed_enum_handle(const unsigned char value
 
     fan_speed_enum = mcu_get_dp_download_enum(value,length);
     if(  (G_SYS_Power_Status == OFF )
-		||(G_Set_Fan_Tyde_EN == DISABLE)
-	  )
+            ||(G_Set_Fan_Tyde_EN == DISABLE)
+      )
     {
-        Key_ERR_Buzz_Cnt = 3;
-
+        //Key_ERR_Buzz_Cnt = 3;
+	if(G_Fan_Tyde_Out_Buf != OFF_FAN)
+	{
+           fan_speed_enum = G_Fan_Tyde_Out_Buf ;
+	}
+	else
+	{
+            fan_speed_enum = G_SYS_Fan_Tyde ;
+	}
     }
+    else if(    ( G_Set_Fan_Tyde_EN == DISABLE)
+    	      ||(G_Def_Reg.Defrost_status == TRUE) )
+    {
+        //Key_ERR_Buzz_Cnt = 3;
+	if(G_Fan_Tyde_Out_Buf != OFF_FAN)
+	{
+           fan_speed_enum = G_Fan_Tyde_Out_Buf ;
+	}
+	else
+	{
+            fan_speed_enum = G_SYS_Fan_Tyde ;
+	}
+    }
+
     else
     {
-    switch(fan_speed_enum) {
+        switch(fan_speed_enum)
+        {
         case 0:
-		G_SYS_Fan_Tyde_Buf = LOW_FAN;
-	  G_SYS_Fan_Tyde = G_SYS_Fan_Tyde_Buf;
-        break;
+            G_SYS_Fan_Tyde_Buf = LOW_FAN;
+            G_SYS_Fan_Tyde = G_SYS_Fan_Tyde_Buf;
+            break;
 
         case 1:
-		 G_SYS_Fan_Tyde_Buf = MID_FAN;
-	  G_SYS_Fan_Tyde = G_SYS_Fan_Tyde_Buf;
-        break;
+            G_SYS_Fan_Tyde_Buf = MID_FAN;
+            G_SYS_Fan_Tyde = G_SYS_Fan_Tyde_Buf;
+            break;
 
         case 2:
-		  G_SYS_Fan_Tyde_Buf = HIGH_FAN;
-	  G_SYS_Fan_Tyde = G_SYS_Fan_Tyde_Buf;
-        break;
+            G_SYS_Fan_Tyde_Buf = HIGH_FAN;
+            G_SYS_Fan_Tyde = G_SYS_Fan_Tyde_Buf;
+            break;
 
         default:
 
 
-        break;
-    }
-    G_Buzz_Time = BUZZ_short_time;
-    Wifi_Updata.SYS_Fan_Tyde = G_SYS_Fan_Tyde ;
+            break;
+        }
+        G_Buzz_Time = BUZZ_short_time;
+        Wifi_Updata.SYS_Fan_Tyde = G_SYS_Fan_Tyde ;
     }
     //There should be a report after processing the DP
     ret = mcu_dp_enum_update(DPID_FAN_SPEED_ENUM, fan_speed_enum);
@@ -317,27 +341,55 @@ static unsigned char dp_download_mode_handle(const unsigned char value[], unsign
     unsigned char mode;
 
     mode = mcu_get_dp_download_enum(value,length);
-    switch(mode) {
-        case 0:
-		  G_SYS_Mode_Buf = mode_DRY ;
-		  G_SYS_Mode = G_SYS_Mode_Buf ;
+    switch(mode)
+    {
+    case 0:
+    {
+        G_SYS_Mode_Buf = mode_SYS_HUM ;
+        G_SYS_Mode = G_SYS_Mode_Buf ;
+
+        //if((G_SYS_Hum_Set_Buf == 25) &&(G_SYS_Hum_WIFI_Set_Buf != G_SYS_Hum_Set_Buf))
+	if(G_SYS_Hum_Set_Buf == 25)
+        {
+	  G_SYS_Hum_Set_Buf =  G_SYS_Hum_WIFI_Set_Buf ;
+          G_SYS_Hum_Set =      G_SYS_Hum_Set_Buf ;
+        }
+
+	if(G_SYS_Hum_Set_Buf == 25)
+        {
+	  G_SYS_Hum_WIFI_Set_Buf  = 30 ;
+	  G_SYS_Hum_Set_Buf =  G_SYS_Hum_WIFI_Set_Buf ;
+          G_SYS_Hum_Set =      G_SYS_Hum_Set_Buf ;
+        }
+
+    }
         break;
 
-        case 1:
-		 G_SYS_Mode_Buf = mode_SYS_HUM ;
-		  G_SYS_Mode = G_SYS_Mode_Buf ;
+    case 1:
+    {
+        G_SYS_Mode_Buf = mode_SYS_HUM ;
+        G_SYS_Mode = G_SYS_Mode_Buf ;
+
+        G_SYS_Hum_WIFI_Set_Buf = G_SYS_Hum_Set_Buf;
+	G_SYS_Hum_Set_Buf =  25 ;
+        G_SYS_Hum_Set =  G_SYS_Hum_Set_Buf ;
+	G_Set_SYS_Hum_Time = 50;
+    }
         break;
 
-        case 2:
+    case 2:
+    {
+    	G_SYS_Mode_Buf = mode_DRY ;
+        G_SYS_Mode = G_SYS_Mode_Buf ;
+    }
         break;
-
-        default:
+    default:
 
         break;
     }
     G_Buzz_Time = BUZZ_short_time;
 
-    Wifi_Updata.SYS_Mode = G_SYS_Mode ;
+    Wifi_Updata.SYS_Mode = mode ;
     //There should be a report after processing the DP
     ret = mcu_dp_enum_update(DPID_MODE, mode);
     if(ret == SUCCESS)
@@ -358,18 +410,21 @@ static unsigned char dp_download_pump_handle(const unsigned char value[], unsign
     //示例:当前DP类型为BOOL
     unsigned char ret;
     //0:off/1:on
-    unsigned char pump;
+    unsigned char Filter;
 
-    pump = mcu_get_dp_download_bool(value,length);
-    if(pump == 0) {
-        G_Pump_Status = DISABLE;
-    }else {
-        G_Pump_Status = ENABLE;
+    Filter = mcu_get_dp_download_bool(value,length);
+    if(Filter == 0)
+    {
+        G_Filter_Status = DISABLE;
+    }
+    else
+    {
+        G_Filter_Status = ENABLE;
     }
     G_Buzz_Time = BUZZ_short_time;
-    Wifi_Updata.SYS_PUMP_status = G_Pump_Status ;
+    Wifi_Updata.SYS_Filter_Status = G_Filter_Status;
     //There should be a report after processing the DP
-    ret = mcu_dp_bool_update(DPID_PUMP,pump);
+    ret = mcu_dp_bool_update(DPID_PUMP,Filter);
     if(ret == SUCCESS)
         return SUCCESS;
     else
@@ -404,37 +459,38 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
     unsigned char ret;
 
     if(  (G_Sys_Err.Water_Full)     //水满不处理
-       ||(G_Power_Delay_Time>0) )
+            ||(G_Power_Delay_Time>0) )
     {
-        Key_ERR_Buzz_Cnt = 3;
-	return ret;
+        //Key_ERR_Buzz_Cnt = 3;
+        return ret;
 
     }
 
-    switch(dpid) {
-        case DPID_SWITCH:
-            //开关处理函数
-            ret = dp_download_switch_handle(value,length);
+    switch(dpid)
+    {
+    case DPID_SWITCH:
+        //开关处理函数
+        ret = dp_download_switch_handle(value,length);
         break;
-        case DPID_DEHUMIDIFY_SET_VALUE:
-            //目标湿度处理函数
-            ret = dp_download_dehumidify_set_value_handle(value,length);
+    case DPID_DEHUMIDIFY_SET_VALUE:
+        //目标湿度处理函数
+        ret = dp_download_dehumidify_set_value_handle(value,length);
         break;
-        case DPID_FAN_SPEED_ENUM:
-            //风速处理函数
-            ret = dp_download_fan_speed_enum_handle(value,length);
+    case DPID_FAN_SPEED_ENUM:
+        //风速处理函数
+        ret = dp_download_fan_speed_enum_handle(value,length);
         break;
-        case DPID_MODE:
-            //工作模式处理函数
-            ret = dp_download_mode_handle(value,length);
+    case DPID_MODE:
+        //工作模式处理函数
+        ret = dp_download_mode_handle(value,length);
         break;
-        case DPID_PUMP:
-            //自动排水处理函数
-            ret = dp_download_pump_handle(value,length);
+    case DPID_PUMP:
+        //自动排水处理函数
+        ret = dp_download_pump_handle(value,length);
         break;
 
 
-        default:
+    default:
         break;
     }
     return ret;
@@ -469,7 +525,7 @@ unsigned char get_download_cmd_total(void)
  */
 void upgrade_package_choose(unsigned char package_sz)
 {
-    #error "请自行实现请自行实现升级包大小选择代码,完成后请删除该行"
+#error "请自行实现请自行实现升级包大小选择代码,完成后请删除该行"
     unsigned short send_len = 0;
     send_len = set_wifi_uart_byte(send_len, package_sz);
     wifi_uart_write_frame(UPDATE_START_CMD, MCU_TX_VER, send_len);
@@ -485,11 +541,14 @@ void upgrade_package_choose(unsigned char package_sz)
  */
 unsigned char mcu_firm_update_handle(const unsigned char value[],unsigned long position,unsigned short length)
 {
-    #error "请自行完成MCU固件升级代码,完成后请删除该行"
-    if(length == 0) {
+#error "请自行完成MCU固件升级代码,完成后请删除该行"
+    if(length == 0)
+    {
         //固件数据发送完成
 
-    }else {
+    }
+    else
+    {
         //固件数据处理
 
     }
@@ -507,7 +566,7 @@ unsigned char mcu_firm_update_handle(const unsigned char value[],unsigned long p
  */
 void mcu_get_greentime(unsigned char time[])
 {
-    #error "请自行完成相关代码,并删除该行"
+#error "请自行完成相关代码,并删除该行"
     /*
     time[0] 为是否获取时间成功标志，为 0 表示失败，为 1表示成功
     time[1] 为年份，0x00 表示 2000 年
@@ -517,10 +576,13 @@ void mcu_get_greentime(unsigned char time[])
     time[5] 为分钟，从 0 开始到59 结束
     time[6] 为秒钟，从 0 开始到59 结束
     */
-    if(time[0] == 1) {
+    if(time[0] == 1)
+    {
         //正确接收到wifi模块返回的格林数据
 
-    }else {
+    }
+    else
+    {
         //获取格林时间出错,有可能是当前wifi模块未联网
     }
 }
@@ -535,7 +597,7 @@ void mcu_get_greentime(unsigned char time[])
  */
 void mcu_write_rtctime(unsigned char time[])
 {
-    #error "请自行完成RTC时钟写入代码,并删除该行"
+#error "请自行完成RTC时钟写入代码,并删除该行"
     /*
     Time[0] 为是否获取时间成功标志，为 0 表示失败，为 1表示成功
     Time[1] 为年份，0x00 表示 2000 年
@@ -545,11 +607,14 @@ void mcu_write_rtctime(unsigned char time[])
     Time[5] 为分钟，从 0 开始到59 结束
     Time[6] 为秒钟，从 0 开始到59 结束
     Time[7] 为星期，从 1 开始到 7 结束，1代表星期一
-   */
-    if(time[0] == 1) {
+    */
+    if(time[0] == 1)
+    {
         //正确接收到wifi模块返回的本地时钟数据
 
-    }else {
+    }
+    else
+    {
         //获取本地时钟数据出错,有可能是当前wifi模块未联网
     }
 }
@@ -568,14 +633,20 @@ void mcu_write_rtctime(unsigned char time[])
 void wifi_test_result(unsigned char result,unsigned char rssi)
 {
     //#error "请自行实现wifi功能测试成功/失败代码,完成后请删除该行"
-    if(result == 0) {
+    if(result == 0)
+    {
         //测试失败
-        if(rssi == 0x00) {
+        if(rssi == 0x00)
+        {
             //未扫描到名称为tuya_mdev_test路由器,请检查
-        }else if(rssi == 0x01) {
+        }
+        else if(rssi == 0x01)
+        {
             //模块未授权
         }
-    }else {
+    }
+    else
+    {
         //测试成功
         //rssi为信号强度(0-100, 0信号最差，100信号最强)
         M_wifi_rssi_dsp=rssi;//rssi为信号强度(0-100, 0信号最差，100信号最强)
@@ -600,12 +671,13 @@ void mcu_open_weather(void)
 
     weather_len = sizeof(weather_choose) / sizeof(weather_choose[0]);
 
-    for(i=0;i<weather_len;i++) {
+    for(i=0; i<weather_len; i++)
+    {
         buffer[0] = sprintf(buffer+1,"w.%s",weather_choose[i]);
         send_len = set_wifi_uart_buffer(send_len, (unsigned char *)buffer, buffer[0]+1);
     }
 
-    #error "请根据提示，自行完善打开天气服务代码，完成后请删除该行"
+#error "请根据提示，自行完善打开天气服务代码，完成后请删除该行"
     /*
     //当获取的参数有和时间有关的参数时(如:日出日落)，需要搭配t.unix或者t.local使用，需要获取的参数数据是按照格林时间还是本地时间
     buffer[0] = sprintf(buffer+1,"t.unix"); //格林时间   或使用  buffer[0] = sprintf(buffer+1,"t.local"); //本地时间
@@ -629,12 +701,15 @@ void mcu_open_weather(void)
  */
 void weather_open_return_handle(unsigned char res, unsigned char err)
 {
-    #error "请自行完成打开天气功能返回数据处理代码,完成后请删除该行"
+#error "请自行完成打开天气功能返回数据处理代码,完成后请删除该行"
     unsigned char err_num = 0;
 
-    if(res == 1) {
+    if(res == 1)
+    {
         //打开天气返回成功
-    }else if(res == 0) {
+    }
+    else if(res == 0)
+    {
         //打开天气返回失败
         //获取错误码
         err_num = err;
@@ -656,27 +731,37 @@ void weather_open_return_handle(unsigned char res, unsigned char err)
  */
 void weather_data_user_handle(char *name, unsigned char type, const unsigned char *data, char day)
 {
-    #error "这里仅给出示例，请自行完善天气数据处理代码,完成后请删除该行"
+#error "这里仅给出示例，请自行完善天气数据处理代码,完成后请删除该行"
     int value_int;
     char value_string[50];//由于有的参数内容较多，这里默认为50。您可以根据定义的参数，可以适当减少该值
 
     my_memset(value_string, '\0', 50);
 
     //首先获取数据类型
-    if(type == 0) { //参数是INT型
+    if(type == 0)   //参数是INT型
+    {
         value_int = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-    }else if(type == 1) {
+    }
+    else if(type == 1)
+    {
         my_strcpy(value_string, data);
     }
 
     //注意要根据所选参数类型来获得参数值！！！
-    if(my_strcmp(name, "temp") == 0) {
+    if(my_strcmp(name, "temp") == 0)
+    {
         printf("day:%d temp value is:%d\r\n", day, value_int);          //int 型
-    }else if(my_strcmp(name, "humidity") == 0) {
+    }
+    else if(my_strcmp(name, "humidity") == 0)
+    {
         printf("day:%d humidity value is:%d\r\n", day, value_int);      //int 型
-    }else if(my_strcmp(name, "pm25") == 0) {
+    }
+    else if(my_strcmp(name, "pm25") == 0)
+    {
         printf("day:%d pm25 value is:%d\r\n", day, value_int);          //int 型
-    }else if(my_strcmp(name, "condition") == 0) {
+    }
+    else if(my_strcmp(name, "condition") == 0)
+    {
         printf("day:%d condition value is:%s\r\n", day, value_string);  //string 型
     }
 }
@@ -693,11 +778,14 @@ void weather_data_user_handle(char *name, unsigned char type, const unsigned cha
  */
 void get_upload_syn_result(unsigned char result)
 {
-    #error "请自行完成状态同步上报结果代码,并删除该行"
+#error "请自行完成状态同步上报结果代码,并删除该行"
 
-    if(result == 0) {
+    if(result == 0)
+    {
         //同步上报出错
-    }else {
+    }
+    else
+    {
         //同步上报成功
     }
 }
@@ -719,41 +807,41 @@ void get_upload_syn_result(unsigned char result)
  */
 void get_wifi_status(unsigned char result)
 {
-  //#error "请自行完成获取 WIFI 状态结果代码,并删除该行"
+    //#error "请自行完成获取 WIFI 状态结果代码,并删除该行"
     wifi_work_state=result;
-  /*
-    switch(result) {
-        case 0:
-            //wifi工作状态1
-        break;
+    /*
+      switch(result) {
+          case 0:
+              //wifi工作状态1
+          break;
 
-        case 1:
-            //wifi工作状态2
-        break;
+          case 1:
+              //wifi工作状态2
+          break;
 
-        case 2:
-            //wifi工作状态3
-        break;
+          case 2:
+              //wifi工作状态3
+          break;
 
-        case 3:
-            //wifi工作状态4
-        break;
+          case 3:
+              //wifi工作状态4
+          break;
 
-        case 4:
-            //wifi工作状态5
-        break;
+          case 4:
+              //wifi工作状态5
+          break;
 
-        case 5:
-            //wifi工作状态6
-        break;
+          case 5:
+              //wifi工作状态6
+          break;
 
-        case 6:
-            //wifi工作状态7
-        break;
+          case 6:
+              //wifi工作状态7
+          break;
 
-        default:break;
-    }
-    */
+          default:break;
+      }
+      */
 }
 #endif
 
@@ -771,29 +859,31 @@ void get_wifi_status(unsigned char result)
  */
 void stream_trans_send_result(unsigned char result)
 {
-    #error "这里仅给出示例，请自行完善流服务发送结果处理代码,完成后请删除该行"
-    switch(result) {
-        case 0x00:
-            //成功
+#error "这里仅给出示例，请自行完善流服务发送结果处理代码,完成后请删除该行"
+    switch(result)
+    {
+    case 0x00:
+        //成功
         break;
 
-        case 0x01:
-            //流服务功能未开启
+    case 0x01:
+        //流服务功能未开启
         break;
 
-        case 0x02:
-            //流服务器未连接成功
+    case 0x02:
+        //流服务器未连接成功
         break;
 
-        case 0x03:
-            //数据推送超时
+    case 0x03:
+        //数据推送超时
         break;
 
-        case 0x04:
-            //传输的数据长度错误
+    case 0x04:
+        //传输的数据长度错误
         break;
 
-        default:break;
+    default:
+        break;
     }
 }
 
@@ -807,17 +897,19 @@ void stream_trans_send_result(unsigned char result)
  */
 void maps_stream_trans_send_result(unsigned char result)
 {
-    #error "这里仅给出示例，请自行完善多地图流服务发送结果处理代码,完成后请删除该行"
-    switch(result) {
-        case 0x00:
-            //成功
+#error "这里仅给出示例，请自行完善多地图流服务发送结果处理代码,完成后请删除该行"
+    switch(result)
+    {
+    case 0x00:
+        //成功
         break;
 
-        case 0x01:
-            //失败
+    case 0x01:
+        //失败
         break;
 
-        default:break;
+    default:
+        break;
     }
 }
 #endif
@@ -833,10 +925,13 @@ void maps_stream_trans_send_result(unsigned char result)
  */
 void wifi_connect_test_result(unsigned char result)
 {
-    #error "请自行实现wifi功能测试成功/失败代码,完成后请删除该行"
-    if(result == 0) {
+#error "请自行实现wifi功能测试成功/失败代码,完成后请删除该行"
+    if(result == 0)
+    {
         //路由信息接收失败，请检查发出的路由信息包是否是完整的JSON数据包
-    }else {
+    }
+    else
+    {
         //路由信息接收成功，产测结果请注意WIFI_STATE_CMD指令的wifi工作状态
     }
 }
@@ -853,15 +948,18 @@ void wifi_connect_test_result(unsigned char result)
  */
 void mcu_get_mac(unsigned char mac[])
 {
-    #error "请自行完成mac获取代码,并删除该行"
+#error "请自行完成mac获取代码,并删除该行"
     /*
     mac[0]为是否获取mac成功标志，0x00 表示成功，为0x01表示失败
     mac[1]~mac[6]:当获取 MAC地址标志位如果mac[0]为成功，则表示模块有效的MAC地址
-   */
+    */
 
-    if(mac[0] == 1) {
+    if(mac[0] == 1)
+    {
         //获取mac出错
-    }else {
+    }
+    else
+    {
         //正确接收到wifi模块返回的mac地址
     }
 }
@@ -880,25 +978,27 @@ void mcu_get_mac(unsigned char mac[])
  */
 void get_ir_status(unsigned char result)
 {
-    #error "请自行完成红外状态代码,并删除该行"
-    switch(result) {
-        case 0:
-            //红外状态 1
+#error "请自行完成红外状态代码,并删除该行"
+    switch(result)
+    {
+    case 0:
+        //红外状态 1
         break;
 
-        case 1:
-            //红外状态 2
+    case 1:
+        //红外状态 2
         break;
 
-        case 2:
-            //红外状态 3
+    case 2:
+        //红外状态 3
         break;
 
-        case 3:
-            //红外状态 4
+    case 3:
+        //红外状态 4
         break;
 
-        default:break;
+    default:
+        break;
     }
 
     wifi_uart_write_frame(GET_IR_STATUS_CMD, MCU_TX_VER, 0);
@@ -916,10 +1016,13 @@ void get_ir_status(unsigned char result)
  */
 void ir_tx_rx_test_result(unsigned char result)
 {
-    #error "请自行实现红外进入收发产测功能测试成功/失败代码,完成后请删除该行"
-    if(result == 0) {
+#error "请自行实现红外进入收发产测功能测试成功/失败代码,完成后请删除该行"
+    if(result == 0)
+    {
         //红外进入收发产测成功
-    }else {
+    }
+    else
+    {
         //红外进入收发产测失败，请检查发出的数据包
     }
 }
@@ -937,7 +1040,7 @@ void ir_tx_rx_test_result(unsigned char result)
  */
 void file_download_package_choose(unsigned char package_sz)
 {
-    #error "请自行实现请自行实现文件下载包大小选择代码,完成后请删除该行"
+#error "请自行实现请自行实现文件下载包大小选择代码,完成后请删除该行"
     unsigned short send_len = 0;
     send_len = set_wifi_uart_byte(send_len, package_sz);
     wifi_uart_write_frame(FILE_DOWNLOAD_START_CMD, MCU_TX_VER, send_len);
@@ -955,11 +1058,14 @@ void file_download_package_choose(unsigned char package_sz)
  */
 unsigned char file_download_handle(const unsigned char value[],unsigned long position,unsigned short length)
 {
-    #error "请自行完成文件包下载代码,完成后请删除该行"
-    if(length == 0) {
+#error "请自行完成文件包下载代码,完成后请删除该行"
+    if(length == 0)
+    {
         //文件包数据发送完成
 
-    }else {
+    }
+    else
+    {
         //文件包数据处理
 
     }
@@ -978,109 +1084,132 @@ unsigned char file_download_handle(const unsigned char value[],unsigned long pos
  */
 void open_module_time_serve_result(const unsigned char value[], unsigned short length)
 {
-    #error "请自行实现模块时间服务通知结果代码,完成后请删除该行"
+#error "请自行实现模块时间服务通知结果代码,完成后请删除该行"
     unsigned char sub_cmd = value[0];
 
-    switch(sub_cmd) {
-        case 0x01: { //子命令  打开模块时间服务通知
-            if(0x02 != length) {
-                //数据长度错误
-                return;
-            }
-
-            if(value[1] == 0) {
-                //服务开启成功
-            }else {
-                //服务开启失败
-            }
+    switch(sub_cmd)
+    {
+    case 0x01:   //子命令  打开模块时间服务通知
+    {
+        if(0x02 != length)
+        {
+            //数据长度错误
+            return;
         }
-        break;
 
-        case 0x02: {  //子命令  模块时间服务通知
-            if(0x09 != length) {
-                //数据长度错误
-                return;
-            }
-
-            unsigned char time_type = value[1]; //0x00:格林时间  0x01:本地时间
-            unsigned char time_data[7];
-
-            my_memcpy(time_data, value + 2, length - 2);
-            /*
-            Data[0]为年份, 0x00表示2000年
-            Data[1]为月份，从1开始到12结束
-            Data[2]为日期，从1开始到31结束
-            Data[3]为时钟，从0开始到23结束
-            Data[4]为分钟，从0开始到59结束
-            Data[5]为秒钟，从0开始到15结束
-            Data[6]为星期，从1开始到7结束，1代表星期一
-            */
-
-            //在此处添加时间数据处理代码，time_type为时间类型
-
-            unsigned short send_len = 0;
-            send_len = set_wifi_uart_byte(send_len,sub_cmd);
-            wifi_uart_write_frame(MODULE_EXTEND_FUN_CMD, MCU_TX_VER, send_len);
+        if(value[1] == 0)
+        {
+            //服务开启成功
         }
-        break;
-
-        case 0x03: {  //子命令  主动请求天气服务数据
-            if(0x02 != length) {
-                //数据长度错误
-                return;
-            }
-
-            if(value[1] == 0) {
-                //成功
-            }else {
-                //失败
-            }
+        else
+        {
+            //服务开启失败
         }
-        break;
+    }
+    break;
 
-        case 0x04: {  //子命令  打开模块重置状态通知
-            if(0x02 != length) {
-                //数据长度错误
-                return;
-            }
-
-            if(value[1] == 0) {
-                //成功
-            }else {
-                //失败
-            }
+    case 0x02:    //子命令  模块时间服务通知
+    {
+        if(0x09 != length)
+        {
+            //数据长度错误
+            return;
         }
-        break;
 
-        case 0x05: {  //子命令  模块重置状态通知
-            if(0x02 != length) {
-                //数据长度错误
-                return;
-            }
+        unsigned char time_type = value[1]; //0x00:格林时间  0x01:本地时间
+        unsigned char time_data[7];
 
-            switch(value[1]) {
-                case 0x00:
-                    //模块本地重置
+        my_memcpy(time_data, value + 2, length - 2);
+        /*
+        Data[0]为年份, 0x00表示2000年
+        Data[1]为月份，从1开始到12结束
+        Data[2]为日期，从1开始到31结束
+        Data[3]为时钟，从0开始到23结束
+        Data[4]为分钟，从0开始到59结束
+        Data[5]为秒钟，从0开始到15结束
+        Data[6]为星期，从1开始到7结束，1代表星期一
+        */
 
-                break;
-                case 0x01:
-                    //APP远程重置
+        //在此处添加时间数据处理代码，time_type为时间类型
 
-                break;
-                case 0x02:
-                    //APP恢复出厂重置
+        unsigned short send_len = 0;
+        send_len = set_wifi_uart_byte(send_len,sub_cmd);
+        wifi_uart_write_frame(MODULE_EXTEND_FUN_CMD, MCU_TX_VER, send_len);
+    }
+    break;
 
-                break;
-                default:break;
-            }
-
-            unsigned short send_len = 0;
-            send_len = set_wifi_uart_byte(send_len, sub_cmd);
-            wifi_uart_write_frame(MODULE_EXTEND_FUN_CMD, MCU_TX_VER, send_len);
+    case 0x03:    //子命令  主动请求天气服务数据
+    {
+        if(0x02 != length)
+        {
+            //数据长度错误
+            return;
         }
-        break;
 
-        default:break;
+        if(value[1] == 0)
+        {
+            //成功
+        }
+        else
+        {
+            //失败
+        }
+    }
+    break;
+
+    case 0x04:    //子命令  打开模块重置状态通知
+    {
+        if(0x02 != length)
+        {
+            //数据长度错误
+            return;
+        }
+
+        if(value[1] == 0)
+        {
+            //成功
+        }
+        else
+        {
+            //失败
+        }
+    }
+    break;
+
+    case 0x05:    //子命令  模块重置状态通知
+    {
+        if(0x02 != length)
+        {
+            //数据长度错误
+            return;
+        }
+
+        switch(value[1])
+        {
+        case 0x00:
+            //模块本地重置
+
+            break;
+        case 0x01:
+            //APP远程重置
+
+            break;
+        case 0x02:
+            //APP恢复出厂重置
+
+            break;
+        default:
+            break;
+        }
+
+        unsigned short send_len = 0;
+        send_len = set_wifi_uart_byte(send_len, sub_cmd);
+        wifi_uart_write_frame(MODULE_EXTEND_FUN_CMD, MCU_TX_VER, send_len);
+    }
+    break;
+
+    default:
+        break;
     }
 }
 #endif
@@ -1095,15 +1224,17 @@ void open_module_time_serve_result(const unsigned char value[], unsigned short l
  */
 void BLE_test_result(const unsigned char value[], unsigned short length)
 {
-    #error "请自行实现蓝牙功能性测试结果代码,完成后请删除该行"
+#error "请自行实现蓝牙功能性测试结果代码,完成后请删除该行"
     unsigned char sub_cmd = value[0];
 
-    if(0x03 != length) {
+    if(0x03 != length)
+    {
         //数据长度错误
         return;
     }
 
-    if(0x01 != sub_cmd) {
+    if(0x01 != sub_cmd)
+    {
         //子命令错误
         return;
     }
@@ -1111,14 +1242,20 @@ void BLE_test_result(const unsigned char value[], unsigned short length)
     unsigned char result = value[1];
     unsigned char rssi = value[2];
 
-    if(result == 0) {
+    if(result == 0)
+    {
         //测试失败
-        if(rssi == 0x00) {
+        if(rssi == 0x00)
+        {
             //未扫描到名称为 ty_mdev蓝牙信标,请检查
-        }else if(rssi == 0x01) {
+        }
+        else if(rssi == 0x01)
+        {
             //模块未授权
         }
-    }else if(result == 0x01) {
+    }
+    else if(result == 0x01)
+    {
         //测试成功
         //rssi为信号强度(0-100, 0信号最差，100信号最强)
     }
@@ -1141,37 +1278,39 @@ void BLE_test_result(const unsigned char value[], unsigned short length)
  */
 void get_voice_state_result(unsigned char result)
 {
-    #error "请自行实现获取语音状态码结果处理代码,完成后请删除该行"
-    switch(result) {
-        case 0:
-            //空闲
+#error "请自行实现获取语音状态码结果处理代码,完成后请删除该行"
+    switch(result)
+    {
+    case 0:
+        //空闲
         break;
 
-        case 1:
-            //mic静音状态
+    case 1:
+        //mic静音状态
         break;
 
-        case 2:
-            //唤醒
+    case 2:
+        //唤醒
         break;
 
-        case 3:
-            //正在录音
+    case 3:
+        //正在录音
         break;
 
-        case 4:
-            //正在识别
+    case 4:
+        //正在识别
         break;
 
-        case 5:
-            //识别成功
+    case 5:
+        //识别成功
         break;
 
-        case 6:
-            //识别失败
+    case 6:
+        //识别失败
         break;
 
-      default:break;
+    default:
+        break;
     }
 }
 
@@ -1185,10 +1324,13 @@ void get_voice_state_result(unsigned char result)
  */
 void set_voice_MIC_silence_result(unsigned char result)
 {
-    #error "请自行实现MIC静音设置处理代码,完成后请删除该行"
-    if(result == 0) {
+#error "请自行实现MIC静音设置处理代码,完成后请删除该行"
+    if(result == 0)
+    {
         //mic 开启
-    }else {
+    }
+    else
+    {
         //mic 静音
     }
 }
@@ -1202,7 +1344,7 @@ void set_voice_MIC_silence_result(unsigned char result)
  */
 void set_speaker_voice_result(unsigned char result)
 {
-    #error "请自行实现speaker音量设置结果处理代码,完成后请删除该行"
+#error "请自行实现speaker音量设置结果处理代码,完成后请删除该行"
 
 }
 
@@ -1217,12 +1359,17 @@ void set_speaker_voice_result(unsigned char result)
  */
 void voice_test_result(unsigned char result)
 {
-    #error "请自行实现音频产测结果处理代码,完成后请删除该行"
-    if(result == 0x00) {
+#error "请自行实现音频产测结果处理代码,完成后请删除该行"
+    if(result == 0x00)
+    {
         //关闭音频产测
-    }else if(result == 0x01) {
+    }
+    else if(result == 0x01)
+    {
         //mic1音频环路测试
-    }else if(result == 0x02) {
+    }
+    else if(result == 0x02)
+    {
         //mic2音频环路测试
     }
 }
@@ -1237,10 +1384,13 @@ void voice_test_result(unsigned char result)
  */
 void voice_awaken_test_result(unsigned char result)
 {
-    #error "请自行实现唤醒产测结果处理代码,完成后请删除该行"
-    if(result == 0x00) {
+#error "请自行实现唤醒产测结果处理代码,完成后请删除该行"
+    if(result == 0x00)
+    {
         //唤醒成功
-    }else if(result == 0x01) {
+    }
+    else if(result == 0x01)
+    {
         //唤醒失败
     }
 }
@@ -1259,78 +1409,99 @@ void voice_module_extend_fun(const unsigned char value[], unsigned short length)
     unsigned char bt_play;
     unsigned short send_len = 0;
 
-    switch(sub_cmd) {
-        case 0x00: { //子命令  MCU功能设置
-            if(0x02 != length) {
-                //数据长度错误
-                return;
-            }
-
-            if(value[1] == 0) {
-                //成功
-            }else {
-                //失败
-            }
+    switch(sub_cmd)
+    {
+    case 0x00:   //子命令  MCU功能设置
+    {
+        if(0x02 != length)
+        {
+            //数据长度错误
+            return;
         }
-        break;
 
-        case 0x01: {  //子命令  状态通知
-            if(0x02 > length) {
-                //数据长度错误
-                return;
-            }
-
-            unsigned char play = 0xff;
-            unsigned char bt_play = 0xff;
-
-            const char *str_buff = (const char *)&value[1];
-            const char *str_result = NULL;
-
-            str_result = strstr(str_buff,"play") + my_strlen("play") + 2;
-            if(NULL == str_result) {
-                //数据错误
-                goto ERR_EXTI;
-            }
-
-            if(0 == memcmp(str_result, "true", my_strlen("true"))) {
-                play = 1;
-            }else if(0 == memcmp(str_result, "false", my_strlen("false"))) {
-                play = 0;
-            }else {
-                //数据错误
-                goto ERR_EXTI;
-            }
-
-            str_result = strstr(str_buff,"bt_play") + my_strlen("bt_play") + 2;
-            if(NULL == str_result) {
-                //数据错误
-                goto ERR_EXTI;
-            }
-
-            if(0 == memcmp(str_result, "true", my_strlen("true"))) {
-                bt_play = 1;
-            }else if(0 == memcmp(str_result, "false", my_strlen("false"))) {
-                bt_play = 0;
-            }else {
-                //数据错误
-                goto ERR_EXTI;
-            }
-
-            #error "请自行实现语音模组状态通知处理代码,完成后请删除该行"
-            //MCU设置暂仅支持”播放/暂停” ”蓝牙开关”
-            //play    播放/暂停功能  1(播放) / 0(暂停)
-            //bt_play 蓝牙开关功能   1(开)   / 0(关)
-
-
-
-            send_len = 0;
-            send_len = set_wifi_uart_byte(send_len, sub_cmd);
-            send_len = set_wifi_uart_byte(send_len, 0x00);
-            wifi_uart_write_frame(MODULE_EXTEND_FUN_CMD, MCU_TX_VER, send_len);
+        if(value[1] == 0)
+        {
+            //成功
         }
-        break;
+        else
+        {
+            //失败
+        }
+    }
+    break;
 
-        default:break;
+    case 0x01:    //子命令  状态通知
+    {
+        if(0x02 > length)
+        {
+            //数据长度错误
+            return;
+        }
+
+        unsigned char play = 0xff;
+        unsigned char bt_play = 0xff;
+
+        const char *str_buff = (const char *)&value[1];
+        const char *str_result = NULL;
+
+        str_result = strstr(str_buff,"play") + my_strlen("play") + 2;
+        if(NULL == str_result)
+        {
+            //数据错误
+            goto ERR_EXTI;
+        }
+
+        if(0 == memcmp(str_result, "true", my_strlen("true")))
+        {
+            play = 1;
+        }
+        else if(0 == memcmp(str_result, "false", my_strlen("false")))
+        {
+            play = 0;
+        }
+        else
+        {
+            //数据错误
+            goto ERR_EXTI;
+        }
+
+        str_result = strstr(str_buff,"bt_play") + my_strlen("bt_play") + 2;
+        if(NULL == str_result)
+        {
+            //数据错误
+            goto ERR_EXTI;
+        }
+
+        if(0 == memcmp(str_result, "true", my_strlen("true")))
+        {
+            bt_play = 1;
+        }
+        else if(0 == memcmp(str_result, "false", my_strlen("false")))
+        {
+            bt_play = 0;
+        }
+        else
+        {
+            //数据错误
+            goto ERR_EXTI;
+        }
+
+#error "请自行实现语音模组状态通知处理代码,完成后请删除该行"
+        //MCU设置暂仅支持”播放/暂停” ”蓝牙开关”
+        //play    播放/暂停功能  1(播放) / 0(暂停)
+        //bt_play 蓝牙开关功能   1(开)   / 0(关)
+
+
+
+        send_len = 0;
+        send_len = set_wifi_uart_byte(send_len, sub_cmd);
+        send_len = set_wifi_uart_byte(send_len, 0x00);
+        wifi_uart_write_frame(MODULE_EXTEND_FUN_CMD, MCU_TX_VER, send_len);
+    }
+    break;
+
+    default:
+        break;
     }
 
     return;
