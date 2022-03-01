@@ -139,24 +139,24 @@ static void Filter_Time_Logic(void)
    {
       return;
    }
-   //分钟
-   //快测时，小时变秒
-   S_Filter_Minute_Count++;
-   if ((S_Filter_Minute_Count < 60) || (G_SYS_Fast_Test))
-   {
-      return;
-   }
-   S_Filter_Minute_Count = 0;
 
    if (G_SYS_Fast_Test)
    {
+      S_Filter_Minute_Count = 60; //快测时，每秒进入一次
       num = 60;
    }
    else
    {
       num = 1;
    }
-   //
+
+   S_Filter_Minute_Count++;
+   if (S_Filter_Minute_Count < 60) //正常1分钟进入一次
+   {
+      return;
+   }
+   S_Filter_Minute_Count = 0;
+
    if (G_Fan_Tyde_Out != OFF_FAN) //风机开启，滤网开始计时
    {
       G_Filter_Run_Time = UI16_Addition_Operation(G_Filter_Run_Time, num);
