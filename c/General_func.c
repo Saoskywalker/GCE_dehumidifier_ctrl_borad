@@ -42,7 +42,7 @@ GCE_XDATA UI08 G_M_Sleep_Time = 10; //待机后多久给电源板发送睡眠标志
 UI16 G_Buzz_Time = 0;                     //蜂鸣器时间
 TE_Pin_Status G_Buzzer_IO_Status = RESET; //蜂鸣器当前IO状态
 GCE_XDATA UI08 G_Buzz_Cnt = 0;            //水满报警时，蜂鸣器响次数
-GCE_XDATA UI08 Key_ERR_Buzz_Cnt = 0;      //按键无效时，蜂鸣器响的次数
+// GCE_XDATA UI08 Key_ERR_Buzz_Cnt = 0;      //按键无效时，蜂鸣器响的次数
 
 GCE_XDATA TE_FuncState G_Pump_Status = DISABLE; //自动水泵抽水功能是否打开
 
@@ -268,11 +268,11 @@ void Prg_S_General(void)
         G_Buzz_Cnt--;
         G_Buzz_Time = BUZZ_long_time;
     }
-    else if (Key_ERR_Buzz_Cnt > 0)
-    {
-        Key_ERR_Buzz_Cnt--;
-        G_Buzz_Time = BUZZ_short_time;
-    }
+    // else if (Key_ERR_Buzz_Cnt > 0)
+    // {
+    //     Key_ERR_Buzz_Cnt--;
+    //     G_Buzz_Time = BUZZ_short_time;
+    // }
     //
 
     if (G_M_Sleep_Time > 0)
@@ -410,6 +410,36 @@ TE_FuncState Get_Invalid_Key(UI08 key_num)
         return ENABLE;
     }
 
+    //故障时按键无效
+    if (GET_COM_STATUS() == ERROR)
+    {
+        return ENABLE;
+    }
+    else if (G_Sys_Err.temp_room_err)
+    {
+        return ENABLE;
+    }
+    else if (G_Sys_Err.temp_coil_err)
+    {
+        return ENABLE;
+    }
+    else if (G_Sys_Err.hum_Sensor_err)
+    {
+        return ENABLE;
+    }
+    else if (G_Sys_Err.temp_comp_err)
+    {
+        return ENABLE;
+    }
+    else if ((G_High_T_P4_Error_Status = ERROR) || (G_Turn_On_H_T_Error_Status == ERROR))
+    {
+        return ENABLE;
+    }
+    else if ((G_High_T_P5_Error_Status == ERROR) || (G_High_T_P3_Error_Status = ERROR))
+    {
+        return ENABLE;
+    }
+
     return DISABLE;
 }
 
@@ -443,6 +473,8 @@ void Set_Power_Status(void)
             G_Disp_SA_Time = 30;
         }
     }
+
+    G_SYS_Fast_Test = DISABLE; //退出快测
 }
 
 // *****************************************************************************
@@ -854,9 +886,8 @@ void Filter_Clean(void)
         G_Filter_Run_Time = 0;
         G_Filter_Run_Time_Buf = 0;
 	    G_Filter_Status = DISABLE;
+        G_Buzz_Time = BUZZ_short_time;
     }
-
-    G_Buzz_Time = BUZZ_short_time;
 }
 
 // *****************************************************************************
