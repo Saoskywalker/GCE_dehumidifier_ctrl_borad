@@ -512,7 +512,7 @@ static void LED_Dsp_Content(void)
 {
    UI08 hum_dsp_com = 60; //显示湿度
    // SHORTCUT_STATUS io_status;
-   
+
    //清除所有显示数据
    Clear_Display_Data_Buf();
 
@@ -538,7 +538,58 @@ static void LED_Dsp_Content(void)
    }
 
    //故障显示
-   if (G_Sys_Err.Water_Full) //水满报警显示
+   //数码管显示故障代码
+   if (GET_COM_STATUS() == ERROR)
+   {
+      dig1_num = DATA_E;
+      dig2_num = DATA_5;
+      return;
+   }
+   else if (G_Sys_Err.temp_room_err)
+   {
+      dig1_num = DATA_E;
+      dig2_num = DATA_1;
+      dig2_num &= ~BIT_P;
+      return;
+   }
+   else if (G_Sys_Err.temp_coil_err)
+   {
+      dig1_num = DATA_E;
+      dig2_num = DATA_2;
+      dig2_num &= ~BIT_P;
+      return;
+   }
+   else if (G_Sys_Err.hum_Sensor_err)
+   {
+      dig1_num = DATA_E;
+      dig2_num = DATA_3;
+      dig2_num &= ~BIT_P;
+      return;
+   }
+   else if (G_Sys_Err.temp_comp_err)
+   {
+      dig1_num = DATA_E;
+      dig2_num = DATA_6;
+      dig2_num &= ~BIT_P;
+      return;
+   }
+   else if ((G_High_T_P4_Error_Status = ERROR) || (G_Turn_On_H_T_Error_Status == ERROR))
+   {
+      dig1_num = DATA_E;
+      dig2_num = DATA_4;
+      dig2_num &= ~BIT_P;
+      return;
+   }
+   else if ((G_High_T_P5_Error_Status == ERROR) || (G_High_T_P3_Error_Status = ERROR))
+   {
+      dig1_num = DATA_E;
+      dig2_num = DATA_8;
+      dig2_num &= ~BIT_P;
+      return;
+   }
+   
+   //水满报警显示
+   if (G_Sys_Err.Water_Full)
    {
       if (S_Flash_mS500)
       {
@@ -546,13 +597,6 @@ static void LED_Dsp_Content(void)
       }
       // dig1_num = DATA_F;
       // dig2_num = DATA_U;
-      return;
-   }
-
-   if (GET_COM_STATUS() == ERROR)
-   {
-      dig1_num = DATA_E;
-      dig2_num = DATA_5;
       return;
    }
 
@@ -620,50 +664,6 @@ static void LED_Dsp_Content(void)
          dig2_num = DATA_y;
       }
    }
-   //
-   //数码管显示故障代码
-   if (G_Sys_Err.temp_room_err)
-   {
-      dig1_num = DATA_E;
-      dig2_num = DATA_1;
-
-      dig2_num &= ~BIT_P;
-   }
-   else if (G_Sys_Err.temp_coil_err)
-   {
-      dig1_num = DATA_E;
-      dig2_num = DATA_2;
-
-      dig2_num &= ~BIT_P;
-   }
-   else if (G_Sys_Err.hum_Sensor_err)
-   {
-      dig1_num = DATA_E;
-      dig2_num = DATA_3;
-
-      dig2_num &= ~BIT_P;
-   }
-   else if (G_Sys_Err.temp_comp_err)
-   {
-      dig1_num = DATA_E;
-      dig2_num = DATA_6;
-
-      dig2_num &= ~BIT_P;
-   }
-   else if ((G_High_T_P4_Error_Status = ERROR) || (G_Turn_On_H_T_Error_Status == ERROR))
-   {
-      dig1_num = DATA_E;
-      dig2_num = DATA_4;
-      dig2_num &= ~BIT_P;
-   }
-   else if ((G_High_T_P5_Error_Status == ERROR) || (G_High_T_P3_Error_Status = ERROR))
-   {
-      dig1_num = DATA_E;
-      dig2_num = DATA_8;
-      dig2_num &= ~BIT_P;
-   }
-
-   //
 
    if (G_SYS_Power_Status == OFF)
    {
@@ -711,14 +711,6 @@ static void LED_Dsp_Content(void)
    case mode_SYS_HUM:
    {
       LED_HUM_MODE;
-      if (G_Set_SYS_Fan_Tyde_Time > 0)
-      {
-         FAN_Speed_Disp(G_SYS_Fan_Tyde_Buf);
-      }
-      else
-      {
-         FAN_Speed_Disp(G_Fan_Tyde_Out);
-      }
    }
    break;
 
@@ -733,6 +725,15 @@ static void LED_Dsp_Content(void)
    }
    break;
    };
+
+   if (G_Set_SYS_Fan_Tyde_Time > 0)
+   {
+      FAN_Speed_Disp(G_SYS_Fan_Tyde_Buf);
+   }
+   else
+   {
+      FAN_Speed_Disp(G_Fan_Tyde_Out);
+   }
 }
 
 // *****************************************************************************
