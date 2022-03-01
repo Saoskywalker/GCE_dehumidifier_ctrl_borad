@@ -21,6 +21,7 @@ GCE_XDATA UI16 G_Fan_Force_Run_Time = 180; //Ã¿´Î°´¼ü»òÕß¶¨Ê±¿ª»ú£¬»òÕßË®Âú»Ø¸´·
 GCE_XDATA UI08 S_Filter_Minute_Count = 0; //ÂËÍø¼ÆÊ±
 GCE_XDATA UI16 G_Filter_Run_Time = 0;     //ÂËÍøÊ±¼ä, µ¥Î»:·ÖÖÓ
 GCE_XDATA UI16 G_Filter_Run_Time_Buf = 0; //ÂËÍøÊ±¼ä, µ¥Î»:·ÖÖÓ
+GCE_XDATA TE_FuncState  G_Filter_Status = DISABLE;
 
 GCE_XDATA TU_Step S_High_T_P2_Step = Step0;
 
@@ -52,7 +53,7 @@ GCE_XDATA TS_DO_Para_Def G_Comp_Para; //Ñ¹Ëõ»ú
 GCE_XDATA TS_DO_Para_Def G_Pump_Para; //Ë®±Ã
 
 GCE_XDATA TU_FAN_Speed_Type G_Fan_Tyde_Out = OFF_FAN;     //Êµ¼ÊÔËÐÐ·çËÙ
-GCE_XDATA TU_FAN_Speed_Type S_Fan_Tyde_Out_Buf = OFF_FAN; //Êµ¼ÊÔËÐÐ·çËÙ
+GCE_XDATA TU_FAN_Speed_Type G_Fan_Tyde_Out_Buf = OFF_FAN; //Êµ¼ÊÔËÐÐ·çËÙ
 GCE_XDATA UI16 S_FAN_ON_Time = 0;
 GCE_XDATA UI16 S_FAN_OFF_Time = 0;
 
@@ -124,6 +125,15 @@ void Control_data_init(void)
 static void Filter_Time_Logic(void)
 {
    UI16 num = 0;
+
+   if( G_Filter_Run_Time  >=  FILTER_CLEAN_TIME)
+   {
+       G_Filter_Status = ENABLE ;
+   }
+   else
+   {
+       G_Filter_Status = DISABLE ;
+   }
 
    if (!_1S_For_For_SYS)
    {
@@ -213,7 +223,7 @@ static void Prg_s_Control(void)
 
    S_High_T_P5_Cont1 = UI16_Addition_Operation(S_High_T_P5_Cont1, num);
    //
-   Pump_S_General();
+   //Pump_S_General();
 
    if (S_Comp_Test_Time < 0Xffff)
    {
@@ -267,11 +277,11 @@ static void EC_Protect_Load_Logic(void)
 
    if (G_SYS_Mode == mode_SYS_HUM)
    {
-      S_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
+      G_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
    }
    else if (G_SYS_Mode == mode_DRY)
    {
-      S_Fan_Tyde_Out_Buf = HIGH_FAN;
+      G_Fan_Tyde_Out_Buf = HIGH_FAN;
    }
 
    G_Comp_Para.BUF = OFF;
@@ -300,7 +310,7 @@ static void Ec_Protect1_Logic(void)
 
    if (S_EC1_Err)
    {
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      G_Fan_Tyde_Out_Buf = OFF_FAN;
       G_Comp_Para.BUF = OFF;
       return;
    }
@@ -462,7 +472,7 @@ static void Ec_Protect1_Logic(void)
 
    if (S_EC2_Err)
    {
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      G_Fan_Tyde_Out_Buf = OFF_FAN;
       G_Comp_Para.BUF = OFF;
       return;
    }
@@ -768,7 +778,7 @@ static void Defrost_Logic(void)
    {
       //³ýËª¶¯×÷
       G_Comp_Para.BUF = OFF;
-      S_Fan_Tyde_Out_Buf = HIGH_FAN;
+      G_Fan_Tyde_Out_Buf = HIGH_FAN;
       G_Set_Fan_Tyde_EN = DISABLE;
 
       //³ýËª½áÊøÌõ¼þÅÐ¶Ï
@@ -836,7 +846,7 @@ static void HiPriority_Protect_Deal(void)
    {
       G_Pump_Para.BUF = OFF;
       G_Comp_Para.BUF = OFF;
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      G_Fan_Tyde_Out_Buf = OFF_FAN;
 
       G_Fan_Force_Run_Time = 0;
    }
@@ -908,7 +918,7 @@ static void Sys_Sensor_Err_Deal(void)
       )
       {
          G_Comp_Para.BUF = OFF;
-         S_Fan_Tyde_Out_Buf = OFF_FAN;
+         G_Fan_Tyde_Out_Buf = OFF_FAN;
       }
    }
 }
@@ -980,7 +990,7 @@ static void High_Temperature_Protection2(void)
    case Step1:
    {
       G_Comp_Para.BUF = OFF; //×¢Òâ:Èç¹ûÑ¹Ëõ»úÓÐÇ¿ÖÆÔË×ª3·ÖÖÓÊ±£¬Ò²ÒªÇ¿ÖÆ¹Ø±Õ
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      G_Fan_Tyde_Out_Buf = OFF_FAN;
 
       if (temp_room_C <= (41 + 15))
       {
@@ -1041,7 +1051,7 @@ static void High_Temperature_Protection1(void)
 
    case Step1:
    {
-      S_Fan_Tyde_Out_Buf = HIGH_FAN;
+      G_Fan_Tyde_Out_Buf = HIGH_FAN;
 
       if (temp_room_C <= (31 + 15))
       {
@@ -1092,7 +1102,7 @@ static void High_Temperature_Protection3(void)
 
    case Step1:
    {
-      S_Fan_Tyde_Out_Buf = HIGH_FAN;
+      G_Fan_Tyde_Out_Buf = HIGH_FAN;
 
       if ((temp_comp_t > (90 + 15)) // 90ÉãÊÏ¶È
           && (G_Comp_Para.OUT == ON))
@@ -1110,7 +1120,7 @@ static void High_Temperature_Protection3(void)
    case Step2:
    {
       G_Comp_Para.BUF = OFF;
-      S_Fan_Tyde_Out_Buf = HIGH_FAN;
+      G_Fan_Tyde_Out_Buf = HIGH_FAN;
 
       if (temp_comp_t <= (45 + 15)) // 45ÉãÊÏ¶È
       {
@@ -1134,12 +1144,12 @@ static void High_Temperature_Protection3(void)
 
       if (S_High_T_P3_Cont >= 180) //ÖÁÉÙ180Ãë
       {
-         S_Fan_Tyde_Out_Buf = OFF_FAN;
+         G_Fan_Tyde_Out_Buf = OFF_FAN;
          G_High_T_P3_Error_Status = ERROR;
       }
       else
       {
-         S_Fan_Tyde_Out_Buf = HIGH_FAN;
+         G_Fan_Tyde_Out_Buf = HIGH_FAN;
       }
    }
    break;
@@ -1232,11 +1242,11 @@ static void High_Temperature_Protection4(void)
 
       if (S_High_T_P4_Cont1 >= (5UL * 60)) //ÖÁÉÙ180Ãë
       {
-         S_Fan_Tyde_Out_Buf = OFF_FAN;
+         G_Fan_Tyde_Out_Buf = OFF_FAN;
       }
       else
       {
-         S_Fan_Tyde_Out_Buf = HIGH_FAN;
+         G_Fan_Tyde_Out_Buf = HIGH_FAN;
       }
 
       if (temp_room_C > (40 + 15))
@@ -1291,7 +1301,7 @@ static void High_Temperature_Protection5(void)
    if (G_High_T_P5_Error_Status == ERROR)
    {
       G_Comp_Para.BUF = OFF;
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      G_Fan_Tyde_Out_Buf = OFF_FAN;
       return;
    }
 
@@ -1484,6 +1494,7 @@ static void Load_Set(void)
 {
    Comp_Safe_Logic();
    //-----------------------------------------------Ë®±Ã¿ØÖÆ
+  /*
    if (G_Pump_Para.BUF == ON)
    {
       G_Pump_Para.OUT = ON;
@@ -1492,8 +1503,10 @@ static void Load_Set(void)
    {
       G_Pump_Para.OUT = OFF;
    }
+  */
+   G_Pump_Para.OUT = OFF;
 
-   G_Fan_Tyde_Out = S_Fan_Tyde_Out_Buf;
+   G_Fan_Tyde_Out = G_Fan_Tyde_Out_Buf;
    if (G_Fan_Tyde_Out == OFF_FAN) //·ç»ú¹Ø±ÕÊ±£¬¿ìËÙÇåÁã·ç»úÔËÐÐÊ±¼ä
    {
       S_FAN_ON_Time = 0;
@@ -1511,6 +1524,7 @@ static void Load_Set(void)
 // ÉóºËÈÕÆÚ :
 // ÐÞ¸Ä¼ÇÂ¼ : 2021.5.13  V1.0Ê×´Î·¢²¼
 // *****************************************************************************
+/*
 static void Pump_S_General(void)
 {
    SHORTCUT_STATUS status_buf;
@@ -1545,7 +1559,7 @@ static void Pump_S_General(void)
       S_Pump_Type.on_timer = 0;
    }
 }
-
+*/
 // *****************************************************************************
 // º¯ÊýÃû³Æ : Pump_Control
 // ¹¦ÄÜËµÃ÷ : Ë®±ÃÂß¼­
@@ -1557,6 +1571,7 @@ static void Pump_S_General(void)
 // ÉóºËÈÕÆÚ :
 // ÐÞ¸Ä¼ÇÂ¼ : 2021.5.13  V1.0Ê×´Î·¢²¼
 // *****************************************************************************
+/*
 static void Pump_Control(void)
 {
    SHORTCUT_STATUS io_status;
@@ -1634,7 +1649,7 @@ static void Pump_Control(void)
    }
    //
 }
-
+*/
 // *****************************************************************************
 // º¯ÊýÃû³Æ : HUM_Mode_Logic
 // ¹¦ÄÜËµÃ÷ : ³ýÊªÄ£Ê½¹¦ÄÜÂß¼­
@@ -1669,13 +1684,13 @@ static void Hum_Mode_Logic(void)
    // if ((G_Comp_Para.OUT == ON)        //Ñ¹Ëõ»úÔË×ªÊ±
    //     || (G_Fan_Force_Run_Time > 0)) //Ã¿´Î°´µçÔ´¼ü¿ª»ú¡¢¶¨Ê±µ½¿ª»ú£¬»òÕßË®Âú±¨¾¯½â³ýÖ®ºó·ç»úÇ¿ÖÆ°´Éè¶¨·çËÙÔË×ª3·ÖÖÓ
    // {
-   //    S_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
+   //    G_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
    // }
    // else
    // {
-   //    S_Fan_Tyde_Out_Buf = OFF_FAN;
+   //    G_Fan_Tyde_Out_Buf = OFF_FAN;
    // }
-   S_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
+   G_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
    G_Set_Fan_Tyde_EN = ENABLE;
 }
 
@@ -1699,7 +1714,7 @@ static void Dry_Mode_Logic(void)
 
    //·ç»ú
    G_Set_Fan_Tyde_EN = DISABLE;
-   S_Fan_Tyde_Out_Buf = HIGH_FAN;
+   G_Fan_Tyde_Out_Buf = HIGH_FAN;
 }
 
 // *****************************************************************************
@@ -1726,12 +1741,12 @@ static void Comp_Test_General(void)
    if (S_Comp_Test_Time < COMP_TEST_ON_TIME)
    {
       G_Comp_Para.OUT = ON;
-      S_Fan_Tyde_Out_Buf = HIGH_FAN;
+      G_Fan_Tyde_Out_Buf = HIGH_FAN;
    }
    else if (S_Comp_Test_Time < (COMP_TEST_ON_TIME + COMP_TEST_OFF_TIME))
    {
       G_Comp_Para.OUT = OFF;
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      G_Fan_Tyde_Out_Buf = OFF_FAN;
    }
    else
    {
@@ -1812,12 +1827,12 @@ void Sys_Control(void)
    }
    else //¹Ø»ú×´Ì¬
    {
-      S_Fan_Tyde_Out_Buf = OFF_FAN;
+      G_Fan_Tyde_Out_Buf = OFF_FAN;
       G_Comp_Para.BUF = OFF;
    }
 
    Comp_Test_General();
-   Pump_Control(); //´òË®PUMP¹¦ÄÜ
+   //Pump_Control(); //´òË®PUMP¹¦ÄÜ
    Protect_Logic(); //±£»¤Âß¼­
    Load_Set(); //¸ºÔØÊä³ö
    Filter_Time_Logic();
