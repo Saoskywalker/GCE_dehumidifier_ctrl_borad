@@ -316,7 +316,7 @@ void LedDsp_Test(void)
          dig1_num = DATA_E;
          dig2_num = DATA_5;
       }
-      else if (G_Uart_Test_Error)
+      else if (G_Comm_Status == ERROR)
       {
          dig1_num = DATA_E;
          dig2_num = DATA_6;
@@ -578,7 +578,7 @@ static void LED_Dsp_Content(void)
    //正常数码管显示
    if (G_Disp_SA_Time > 0)
    {
-      dig1_num = DATA_5; // DATA_H;  20131122
+      dig1_num = DATA_S; // DATA_H;  20131122
       dig2_num = DATA_A; // DATA_1;
    }
    else if (G_Set_SYS_Hum_Time > 0) //设定湿度显示
@@ -669,7 +669,7 @@ static void LED_Dsp_Content(void)
    {
       return;
    }
-/* 
+/*
    if (G_Pump_Status == ENABLE) //水管接入指示灯
    {
       io_status = GET_PUMP_WATER_PIPE_STATUS();
@@ -686,7 +686,7 @@ static void LED_Dsp_Content(void)
       }
    }
  */
-   if (G_Filter_Run_Time >= FILTER_CLEAN_TIME) //滤网清洗时间
+   if (G_Filter_Status == ENABLE ) //滤网清洗时间
    {
       if (S_Flash_mS500)
       {

@@ -8,15 +8,15 @@
 
 typedef struct
 {
-  ONOFF_STATUS SYS_Power_Status;   //开关机状态
-  UI08 SYS_Hum_Set;                //设定目标湿度
-  TU_FAN_Speed_Type SYS_Fan_Tyde;  //设定风速 U_FAN_Speed_Type G_SYS_Fan_Tyde
-  TU_SYS_Mode SYS_Mode;            //运行模式
-  UI08 Room_HUM;                   //室内湿度
-  UI08 SYS_fault;                  //故障类型
-  TE_FuncState Water_Full;         //水满状态
-  TE_FuncState SYS_defrost_status; //除霜状态
-  UI08 SYS_PUMP_status;
+    ONOFF_STATUS SYS_Power_Status;   //开关机状态
+    UI08 SYS_Hum_Set;                //设定目标湿度
+    TU_FAN_Speed_Type SYS_Fan_Tyde;  //设定风速 U_FAN_Speed_Type G_SYS_Fan_Tyde
+    UI08 SYS_Mode;                   //运行模式
+    UI08 Room_HUM;                   //室内湿度
+    UI08 SYS_fault;                  //故障类型
+    TE_FuncState Water_Full;         //水满状态
+    TE_FuncState SYS_defrost_status; //除霜状态
+    UI08 SYS_Filter_Status;
 } WIFI_UPDATE;
 extern GCE_XDATA WIFI_UPDATE Wifi_Updata;
 
@@ -42,9 +42,5 @@ extern GCE_XDATA UI08 Wifi_Rssi_DSP_delay_time; //
 extern void UART_Init(void);
 extern void WIFI_Deal(void);
 extern void wifi_rssi_Dsp(void);
-
-extern GCE_XDATA UI08 G_Uart_Test_Error;
-extern void uart_test_receive_process(unsigned char d);
-extern void uart_test_send_process(void);
 
 #endif

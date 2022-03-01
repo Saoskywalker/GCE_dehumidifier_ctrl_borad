@@ -32,6 +32,7 @@ extern GCE_XDATA TE_FuncState Fan_set_enable;
 
 extern GCE_XDATA UI16 G_Filter_Run_Time;     //滤网时间
 extern GCE_XDATA UI16 G_Filter_Run_Time_Buf; //滤网时间
+extern GCE_XDATA TE_FuncState  G_Filter_Status;
 
 ///
 extern GCE_XDATA TE_FuncState G_Comp_Test_EN;
@@ -39,7 +40,7 @@ extern GCE_XDATA TS_DO_Para_Def G_Comp_Para; //压缩机
 extern GCE_XDATA TS_DO_Para_Def G_Pump_Para; //水泵
 
 extern GCE_XDATA TU_FAN_Speed_Type G_Fan_Tyde_Out; //实际运行风速
-
+extern GCE_XDATA TU_FAN_Speed_Type G_Fan_Tyde_Out_Buf; //实际运行风速
 ///
 extern GCE_XDATA TE_FuncState Comp_SA_EN; // SA保护标志
 

@@ -54,6 +54,7 @@
 #define DATA_M2 BIT_A | BIT_B | BIT_C | BIT_F
 #define DATA_d BIT_B | BIT_C | BIT_D | BIT_E | BIT_G
 #define DATA_y BIT_B | BIT_G | BIT_E | BIT_F
+#define DATA_S BIT_A | BIT_C | BIT_D | BIT_F | BIT_G
 #define DATA_NON 0
 //------------------------
 extern GCE_XDATA UUI08 S_LED_Data_Buf[COM_total]; // LEDœ‘ ædata

@@ -30,6 +30,7 @@ extern GCE_XDATA TU_SYS_Mode G_SYS_Mode_Buf; //系统模式
 
 extern GCE_XDATA UI08 G_SYS_Hum_Set;     //湿度设定
 extern GCE_XDATA UI08 G_SYS_Hum_Set_Buf; //湿度设定buf
+extern GCE_XDATA UI08 G_SYS_Hum_WIFI_Set_Buf; //湿度设定buf
 extern GCE_XDATA UI08 G_Set_SYS_Hum_Time;
 
 extern GCE_XDATA TU_FAN_Speed_Type G_SYS_Fan_Tyde;     //运行风速

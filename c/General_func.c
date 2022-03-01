@@ -29,6 +29,7 @@ GCE_XDATA UI08 S_Set_SYS_Mode_Time = 0;              // 模式设定时间
 
 GCE_XDATA UI08 G_SYS_Hum_Set = 60;     //湿度设定
 GCE_XDATA UI08 G_SYS_Hum_Set_Buf = 60; //湿度设定buf
+GCE_XDATA UI08 G_SYS_Hum_WIFI_Set_Buf = 30; //湿度设定buf
 GCE_XDATA UI08 G_Set_SYS_Hum_Time = 0;
 
 GCE_XDATA TU_FAN_Speed_Type G_SYS_Fan_Tyde = LOW_FAN;     //运行风速
@@ -78,6 +79,7 @@ void SYS_Data_Rest(void)
 
     G_SYS_Hum_Set = 30;     //湿度设定
     G_SYS_Hum_Set_Buf = 30; //湿度设定buf
+    G_SYS_Hum_WIFI_Set_Buf = 30 ;
     G_Set_SYS_Hum_Time = 0; //湿度设定(确认时间)
 
     G_SYS_Fan_Tyde = LOW_FAN;     //运行风速
@@ -106,7 +108,7 @@ void SYS_Data_Rest(void)
 void SYS_Data_Init(void)
 {
     G_Sys_Config.Auto_Restart = ENABLE;
-    G_Sys_Config.Wifi = DISABLE;
+    G_Sys_Config.Wifi = ENABLE;
 
     Adc_Data_Init();
     Control_data_init();
@@ -405,7 +407,6 @@ TE_FuncState Get_Invalid_Key(UI08 key_num)
 
     if (G_Sys_Err.Water_Full == ENABLE)
     {
-        Key_ERR_Buzz_Cnt = 3;
         return ENABLE;
     }
 
@@ -461,7 +462,6 @@ void Set_FAN_Tyde(void)
 {
     if ((G_SYS_Power_Status == OFF) || (G_Set_Fan_Tyde_EN == DISABLE))
     {
-        Key_ERR_Buzz_Cnt = 3;
         return;
     }
     if (Comp_SA_EN == ENABLE)
@@ -496,7 +496,6 @@ void Set_Hum_Up(void)
 
     if (G_SYS_Mode_Buf != mode_SYS_HUM)
     {
-        Key_ERR_Buzz_Cnt = 3;
         return;
     }
 
@@ -534,7 +533,6 @@ void Set_Hum_Down(void)
 
     if (G_SYS_Mode_Buf != mode_SYS_HUM)
     {
-        Key_ERR_Buzz_Cnt = 3;
         return;
     }
 
@@ -626,7 +624,6 @@ void Up_Key_Function(void)
 {
     if ((G_SYS_Power_Status == OFF) && (G_Time_Setting_Time == 0))
     {
-        Key_ERR_Buzz_Cnt = 3;
         return;
     }
     if (G_Disp_SA_Time > 0)
@@ -668,7 +665,6 @@ void Down_Key_Function(void)
 {
     if ((G_SYS_Power_Status == OFF) && (G_Time_Setting_Time == 0))
     {
-        Key_ERR_Buzz_Cnt = 3;
         return;
     }
 
@@ -768,7 +764,7 @@ void Set_SYS_Mode(void)
 {
     if (G_SYS_Power_Status == OFF)
     {
-        Key_ERR_Buzz_Cnt = 3;
+        //Key_ERR_Buzz_Cnt = 3;
         return;
     }
     if (Comp_SA_EN == ENABLE)
@@ -850,14 +846,14 @@ void Filter_Clean(void)
 {
     if (G_SYS_Power_Status == OFF)
     {
-        Key_ERR_Buzz_Cnt = 3;
         return;
     }
 
-    if (G_Filter_Run_Time >= FILTER_CLEAN_TIME) //滤网清洗时间
+    if (G_Filter_Status == ENABLE) //滤网清洗时间
     {
         G_Filter_Run_Time = 0;
-        G_Filter_Run_Time_Buf = G_Filter_Run_Time;
+        G_Filter_Run_Time_Buf = 0;
+	    G_Filter_Status = DISABLE;
     }
 
     G_Buzz_Time = BUZZ_short_time;
@@ -899,6 +895,11 @@ void Buf_Confirm_Logic(void)
         if (G_Set_SYS_Hum_Time == 0)
         {
             G_SYS_Hum_Set = G_SYS_Hum_Set_Buf;
+
+            if (G_SYS_Hum_Set != 25)
+            {
+                G_SYS_Hum_WIFI_Set_Buf = G_SYS_Hum_Set;
+            }
         }
     }
     //
