@@ -184,12 +184,15 @@ static unsigned char dp_download_switch_handle(const unsigned char value[], unsi
     }
     else
     {
-        Turn_On();
-        G_Fan_Force_Run_Time = 180;
-        if(Comp_SA_EN == ENABLE)
+        if (Comp_SA_EN == ENABLE)
         {
-            G_Disp_SA_Time=30;
-        }  //bool on
+            G_Disp_SA_Time = 30;
+        }
+        else
+        {
+            Turn_On();
+            G_Fan_Force_Run_Time = 180;
+        }
     }
 
     if (G_SYS_Fast_Test)

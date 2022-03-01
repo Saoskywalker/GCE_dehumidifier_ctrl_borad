@@ -46,7 +46,7 @@ GCE_XDATA UI08 G_Buzz_Cnt = 0;            //水满报警时，蜂鸣器响次数
 
 GCE_XDATA TE_FuncState G_Pump_Status = DISABLE; //自动水泵抽水功能是否打开
 
-GCE_XDATA UI08 G_Disp_SA_Time = 0;
+GCE_XDATA UI08 G_Disp_SA_Time = 0; //SA保护显示时间
 
 void Buf_Confirm_Logic(void);
 
@@ -463,18 +463,20 @@ void Set_Power_Status(void)
     if (G_SYS_Power_Status == ON)
     {
         Turn_Off();
+        G_SYS_Fast_Test = DISABLE; //退出快测
     }
     else
     {
-        Turn_On();
-        G_Fan_Force_Run_Time = 180;
         if (Comp_SA_EN == ENABLE)
         {
             G_Disp_SA_Time = 30;
         }
+        else
+        {
+            Turn_On();
+            G_Fan_Force_Run_Time = 180;
+        }
     }
-
-    G_SYS_Fast_Test = DISABLE; //退出快测
 }
 
 // *****************************************************************************
@@ -496,10 +498,7 @@ void Set_FAN_Tyde(void)
     {
         return;
     }
-    if (Comp_SA_EN == ENABLE)
-    {
-        G_Disp_SA_Time = 30;
-    }
+
     G_SYS_Fan_Tyde_Buf++;
     if (G_SYS_Fan_Tyde_Buf > HIGH_FAN)
     {
@@ -658,17 +657,6 @@ void Up_Key_Function(void)
     {
         return;
     }
-    if (G_Disp_SA_Time > 0)
-    {
-        return;
-    }
-    if (Comp_SA_EN == ENABLE)
-    {
-        if ((G_Time_Setting_Time == 0) && (G_Set_SYS_Hum_Time == 0))
-        {
-            G_Disp_SA_Time = 30;
-        }
-    }
 
     if (G_Time_Setting_Time > 0) //设置定时
     {
@@ -700,19 +688,6 @@ void Down_Key_Function(void)
         return;
     }
 
-    if (G_Disp_SA_Time > 0)
-    {
-        return;
-    }
-
-    if (Comp_SA_EN == ENABLE)
-    {
-        if ((G_Time_Setting_Time == 0) && (G_Set_SYS_Hum_Time == 0))
-        {
-            G_Disp_SA_Time = 30;
-        }
-    }
-
     if (G_Time_Setting_Time > 0) //设置定时
     {
         Set_Timer_Down();
@@ -739,19 +714,6 @@ void Down_Key_Function(void)
 void Set_In_Time(void)
 {
     G_Buzz_Time = BUZZ_short_time;
-
-    if (G_Disp_SA_Time > 0)
-    {
-        return;
-    }
-
-    if (Comp_SA_EN == ENABLE)
-    {
-        if (G_Time_Setting_Time == 0)
-        {
-            G_Disp_SA_Time = 30;
-        }
-    }
 
     if (G_Time_Setting_Time > 0) //正在设置则取消定时
     {
@@ -799,10 +761,7 @@ void Set_SYS_Mode(void)
         //Key_ERR_Buzz_Cnt = 3;
         return;
     }
-    if (Comp_SA_EN == ENABLE)
-    {
-        G_Disp_SA_Time = 30;
-    }
+
     G_SYS_Mode_Buf++;
     if (G_SYS_Mode_Buf > mode_SYS_HUM)
     {
@@ -843,10 +802,7 @@ void Set_SYS_Mode(void)
         Key_ERR_Buzz_Cnt = 3;
         return;
     }
-    if (Comp_SA_EN == ENABLE)
-    {
-        G_Disp_SA_Time = 30;
-    }
+
     G_Buzz_Time = BUZZ_short_time;
 
     if (G_Pump_Status == ENABLE)

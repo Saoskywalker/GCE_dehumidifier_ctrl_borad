@@ -940,11 +940,25 @@ static void Comp_OverLoad(void)
 {
    if (G_Comp_Overtime_Protect_Flag)
    {
-      if (G_Comp_Para.on_time >= 3600UL * 12) //连续运行12小时变待机
+      if (G_Comp_Para.on_time >= 3600UL * 12) //连续运行12小时停止, 强制待机1小时
       {
-         Set_Power_Status();
-         G_Fan_Force_Run_Time = 0;
+         Comp_SA_EN = ENABLE;
+         Set_Power_Status(); //进入待机
       }
+      else if (G_Comp_Para.off_time >= 3600)
+      {
+         Comp_SA_EN = DISABLE;
+      }
+
+      if (Comp_SA_EN == ENABLE)
+      {
+         G_Comp_Para.BUF = OFF;
+         G_Fan_Tyde_Out_Buf = OFF_FAN;
+      }
+   }
+   else
+   {
+      Comp_SA_EN = DISABLE;
    }
 }
 
