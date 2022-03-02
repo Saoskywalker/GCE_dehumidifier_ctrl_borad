@@ -751,11 +751,11 @@ static void Defrost_Logic(void)
    {
       G_Def_Reg.def_time = 0;
 
-      if (G_Def_Reg.def_Comp_mode == FIRST_ON)
-      {
-         timer_buf = defrost_para1;
-      }
-      else
+      // if (G_Def_Reg.def_Comp_mode == FIRST_ON)
+      // {
+      //    timer_buf = defrost_para1;
+      // }
+      // else
       {
          timer_buf = 0;
       }
@@ -1065,7 +1065,7 @@ static void High_Temperature_Protection1(void)
 
    case Step1:
    {
-      G_Fan_Tyde_Out_Buf = HIGH_FAN;
+      G_Fan_Tyde_Out_Buf = G_SYS_Fan_Tyde;
 
       if (temp_room_C <= (31 + 15))
       {
