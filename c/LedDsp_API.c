@@ -316,7 +316,7 @@ void LedDsp_Test(void)
          dig1_num = DATA_E;
          dig2_num = DATA_5;
       }
-      else if (G_Comm_Status == ERROR)
+      else if (G_Uart_Test_Error)
       {
          dig1_num = DATA_E;
          dig2_num = DATA_6;

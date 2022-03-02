@@ -76,12 +76,19 @@ void UartInt(void) interrupt 16
     if (READ_TI)
     {
         CLEAR_TI;
-        UART_Txd_Data();
+
+        if (G_SYS_Self_Test)
+            uart_test_send_process();
+        else
+            UART_Txd_Data();
     }
     if (READ_RI)
     {
-        uart_receive_input(UART_SFR);
-        
+        if (G_SYS_Self_Test)
+            uart_test_receive_process(UART_SFR);
+        else
+            uart_receive_input(UART_SFR);
+
         CLEAR_RI;
     }
 }

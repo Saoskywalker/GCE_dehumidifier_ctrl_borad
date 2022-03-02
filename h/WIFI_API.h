@@ -43,4 +43,9 @@ extern void UART_Init(void);
 extern void WIFI_Deal(void);
 extern void wifi_rssi_Dsp(void);
 
+/***********PCB生产串口检测, 外部接口********/
+extern GCE_XDATA UI08 G_Uart_Test_Error;
+extern void uart_test_receive_process(unsigned char d);
+extern void uart_test_send_process(void);
+
 #endif
