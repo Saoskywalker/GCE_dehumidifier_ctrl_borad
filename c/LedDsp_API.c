@@ -667,6 +667,20 @@ static void LED_Dsp_Content(void)
 
    if (G_SYS_Power_Status == OFF)
    {
+      //待机时, 若设定定时开机, 可设置和显示部分功能
+      if (G_Set_SYS_Fan_Tyde_Time > 0 || G_Set_SYS_Mode_Time > 0)
+      {
+         FAN_Speed_Disp(G_SYS_Fan_Tyde_Buf);
+
+         if (G_SYS_Mode_Buf==mode_SYS_HUM)
+         {
+            LED_HUM_MODE;
+         }
+         else if(G_SYS_Mode_Buf== mode_DRY)
+         {
+            LED_DYR_MODE;
+         }
+      }
       return;
    }
 /*

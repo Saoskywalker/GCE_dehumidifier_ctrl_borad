@@ -25,7 +25,7 @@ GCE_XDATA ONOFF_STATUS G_SYS_Power_Status_Old = OFF; // 开关机状态
 
 GCE_XDATA TU_SYS_Mode G_SYS_Mode = mode_SYS_HUM;     // 系统模式
 GCE_XDATA TU_SYS_Mode G_SYS_Mode_Buf = mode_SYS_HUM; // 系统模式
-GCE_XDATA UI08 S_Set_SYS_Mode_Time = 0;              // 模式设定时间
+GCE_XDATA UI08 G_Set_SYS_Mode_Time = 0;              // 模式设定时间
 
 GCE_XDATA UI08 G_SYS_Hum_Set = 60;     //湿度设定
 GCE_XDATA UI08 G_SYS_Hum_Set_Buf = 60; //湿度设定buf
@@ -75,7 +75,7 @@ void SYS_Data_Rest(void)
 
     G_SYS_Mode = mode_SYS_HUM;     //系统模式
     G_SYS_Mode_Buf = mode_SYS_HUM; //系统模式
-    S_Set_SYS_Mode_Time = 0;       //模式设定时间
+    G_Set_SYS_Mode_Time = 0;       //模式设定时间
 
     G_SYS_Hum_Set = 30;     //湿度设定
     G_SYS_Hum_Set_Buf = 30; //湿度设定buf
@@ -494,7 +494,8 @@ void Set_Power_Status(void)
 // *****************************************************************************
 void Set_FAN_Tyde(void)
 {
-    if ((G_SYS_Power_Status == OFF) || (G_Set_Fan_Tyde_EN == DISABLE))
+    if (((G_SYS_Power_Status == OFF) && (G_Time_Run == 0)) || //关机时, 若在运行定时时, 按键有效
+        (G_Set_Fan_Tyde_EN == DISABLE)) //按键使能
     {
         return;
     }
@@ -652,8 +653,9 @@ void Set_Timer_Down(void)
 //
 // *****************************************************************************
 void Up_Key_Function(void)
-{
-    if ((G_SYS_Power_Status == OFF) && (G_Time_Setting_Time == 0))
+{   
+    //关机时, 若在设置定时或运行定时时, 按键有效
+    if ((G_SYS_Power_Status == OFF) && (G_Time_Setting_Time == 0 && G_Time_Run == 0))
     {
         return;
     }
@@ -683,7 +685,8 @@ void Up_Key_Function(void)
 // *****************************************************************************
 void Down_Key_Function(void)
 {
-    if ((G_SYS_Power_Status == OFF) && (G_Time_Setting_Time == 0))
+    //关机时, 若在设置定时或运行定时时, 按键有效
+    if ((G_SYS_Power_Status == OFF) && (G_Time_Setting_Time == 0 && G_Time_Run == 0))
     {
         return;
     }
@@ -756,7 +759,8 @@ void Set_In_Time(void)
 // *****************************************************************************
 void Set_SYS_Mode(void)
 {
-    if (G_SYS_Power_Status == OFF)
+    //关机时, 若在运行定时时, 按键有效
+    if (G_SYS_Power_Status == OFF && (G_Time_Run == 0))
     {
         //Key_ERR_Buzz_Cnt = 3;
         return;
@@ -768,7 +772,7 @@ void Set_SYS_Mode(void)
         G_SYS_Mode_Buf = mode_DRY;
     }
 
-    S_Set_SYS_Mode_Time = 20;
+    G_Set_SYS_Mode_Time = 20;
     G_Buzz_Time = BUZZ_short_time;
 
     if (G_Set_SYS_Hum_Time > 0) //调整湿度时, 马上确认湿度设置
@@ -866,10 +870,10 @@ void Buf_Confirm_Logic(void)
         return;
     }
     //
-    if (S_Set_SYS_Mode_Time > 0)
+    if (G_Set_SYS_Mode_Time > 0)
     {
-        S_Set_SYS_Mode_Time--;
-        if (S_Set_SYS_Mode_Time == 0)
+        G_Set_SYS_Mode_Time--;
+        if (G_Set_SYS_Mode_Time == 0)
         {
             SYS_Mode_Change_Handle(G_SYS_Mode, G_SYS_Mode_Buf);
             G_SYS_Mode = G_SYS_Mode_Buf;

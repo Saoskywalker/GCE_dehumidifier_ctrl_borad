@@ -27,6 +27,7 @@ extern GCE_XDATA TE_ErrorStatus G_Turn_On_H_T_Error_Status;
 
 extern GCE_XDATA TU_SYS_Mode G_SYS_Mode;     //系统模式
 extern GCE_XDATA TU_SYS_Mode G_SYS_Mode_Buf; //系统模式
+extern GCE_XDATA UI08 G_Set_SYS_Mode_Time;   // 模式设定时间
 
 extern GCE_XDATA UI08 G_SYS_Hum_Set;     //湿度设定
 extern GCE_XDATA UI08 G_SYS_Hum_Set_Buf; //湿度设定buf
