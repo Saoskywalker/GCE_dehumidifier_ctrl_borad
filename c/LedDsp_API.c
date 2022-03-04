@@ -175,8 +175,8 @@ void Disp_Hum_Value(UI08 _data_buf)
 {
    if (_data_buf >= 90)
    {
-      dig1_num = DATA_9; // DATA_H;  20131122
-      dig2_num = DATA_0; // DATA_1;
+      dig1_num = DATA_9;
+      dig2_num = DATA_0;
    }
    else if (_data_buf <= 20)
    {
@@ -321,7 +321,8 @@ void LedDsp_Test(void)
          dig1_num = DATA_E;
          dig2_num = DATA_6;
       }
-      else if ((GET_TEST_AD() <= 470) || (GET_TEST_AD() >= 550))
+      // else if ((GET_TEST_AD() <= 470) || (GET_TEST_AD() >= 550)) //AD电阻检测
+      else if (GET_TEST_AD() <= 100) //开关方式
       {
          dig1_num = DATA_E;
          dig2_num = DATA_7;
@@ -496,6 +497,99 @@ void FAN_Speed_Disp(TU_FAN_Speed_Type _fan_buf)
 }
 
 // *****************************************************************************
+// 函数名称 : Disp_Work_Mode
+// 功能说明 : 显示工作模式
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : 许荣乾
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+static void Disp_Work_Mode(void)
+{
+   if (G_SYS_Mode_Buf == mode_SYS_HUM)
+   {
+      LED_HUM_MODE;
+   }
+   else if (G_SYS_Mode_Buf == mode_DRY)
+   {
+      LED_DYR_MODE;
+   }
+}
+
+// *****************************************************************************
+// 函数名称 : Disp_Set_Hum
+// 功能说明 : 设定湿度显示
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : 许荣乾
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+static void Disp_Set_Hum(void)
+{
+   if (S_Flash_mS500)
+   {
+      if (G_SYS_Hum_Set_Buf == 25)
+      {
+         dig1_num = DATA_C;
+         dig2_num = DATA_o;
+      }
+      else
+      {
+         dig1_2_dsp(G_SYS_Hum_Set_Buf);
+      }
+   }
+}
+
+// *****************************************************************************
+// 函数名称 : Disp_Fan
+// 功能说明 : 显示风速
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : 许荣乾
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+static void Disp_Fan(void)
+{
+   if (G_SYS_Mode_Buf == mode_SYS_HUM)
+   {
+      if ((G_Set_SYS_Fan_Tyde_Time > 0) || (G_Set_SYS_Mode_Time > 0))
+      {
+         FAN_Speed_Disp(G_SYS_Fan_Tyde_Buf); //设定状态
+      }
+      else
+      {
+         FAN_Speed_Disp(G_Fan_Tyde_Out); //输出状态
+      }
+   }
+   else if (G_SYS_Mode_Buf == mode_DRY)
+   {
+      if (G_Set_SYS_Mode_Time > 0)
+      {
+         FAN_Speed_Disp(HIGH_FAN);
+      }
+      else
+      {
+         FAN_Speed_Disp(G_Fan_Tyde_Out);
+      }
+   }
+}
+
+// *****************************************************************************
 // 函数名称 : LedDsp_Content
 // 功能说明 : 显示逻辑
 // 入口参数 : 无
@@ -537,6 +631,7 @@ static void LED_Dsp_Content(void)
       return;
    }
 
+   /*工作和待机共用显示*/
    //故障显示
    //数码管显示故障代码
    if (GET_COM_STATUS() == ERROR)
@@ -573,14 +668,14 @@ static void LED_Dsp_Content(void)
       dig2_num &= ~BIT_P;
       return;
    }
-   else if ((G_High_T_P4_Error_Status = ERROR) || (G_Turn_On_H_T_Error_Status == ERROR))
+   else if ((G_High_T_P4_Error_Status == ERROR) || (G_Turn_On_H_T_Error_Status == ERROR))
    {
       dig1_num = DATA_E;
       dig2_num = DATA_4;
       dig2_num &= ~BIT_P;
       return;
    }
-   else if ((G_High_T_P5_Error_Status == ERROR) || (G_High_T_P3_Error_Status = ERROR))
+   else if ((G_High_T_P5_Error_Status == ERROR) || (G_High_T_P3_Error_Status == ERROR) || (G_EC1_Err))
    {
       dig1_num = DATA_E;
       dig2_num = DATA_8;
@@ -612,141 +707,111 @@ static void LED_Dsp_Content(void)
    {
       LED_WIFI;
    }
-   ////////////////////////////////
 
    if ((G_Time_Setting_Time > 0) || (G_Time_Run > 0)) //定时指示灯
    {
       LED_timer;
    }
 
-   //正常数码管显示
-   if (G_Disp_SA_Time > 0)
+   /*待机时显示方式*/
+   if (G_SYS_Power_Status == OFF)
    {
-      dig1_num = DATA_S; // DATA_H;  20131122
-      dig2_num = DATA_A; // DATA_1;
-   }
-   else if (G_Set_SYS_Hum_Time > 0) //设定湿度显示
-   {
-      if (S_Flash_mS500)
+      //待机时, 若设定定时开机, 可设置和显示部分功能
+      if (G_Set_SYS_Fan_Tyde_Time > 0 || G_Set_SYS_Mode_Time > 0 || G_Set_SYS_Hum_Time > 0)
       {
-         if (G_SYS_Hum_Set_Buf == 25)
+         if (G_SYS_Mode_Buf == mode_SYS_HUM)
          {
-            dig1_num = DATA_C; // DATA_H;  20131122
-            dig2_num = DATA_o; // DATA_1;
+            FAN_Speed_Disp(G_SYS_Fan_Tyde_Buf); //设定状态
+            Disp_Set_Hum();
          }
-         else
+         else if (G_SYS_Mode_Buf == mode_DRY)
          {
-            dig1_2_dsp(G_SYS_Hum_Set_Buf);
+            FAN_Speed_Disp(HIGH_FAN);
+         }
+         Disp_Work_Mode();
+      }
+      else if (G_Time_Setting_Time > 0) //定时设置显示
+      {
+         if (S_Flash_mS500)
+         {
+            dig1_2_dsp(G_Time_Buf);
          }
       }
-   }
-   else if (G_Time_Setting_Time > 0) //定时显示
-   {
-      if (S_Flash_mS500)
+      else if (G_Time_Run) //显示剩余时间
       {
          dig1_2_dsp(G_Time_Buf);
       }
+      // else if (G_Disp_SA_Time > 0) //压缩机连续超长时间运后, 安全待机显示
+      // {
+      //    dig1_num = DATA_S;
+      //    dig2_num = DATA_A;
+      // }
    }
-   else if ((G_SYS_Power_Status == OFF) && (G_Time_Run))
+   /*工作时显示方式*/
+   else 
    {
-      dig1_2_dsp(G_Time_Buf);
-   }
-   else if (G_SYS_Power_Status) //房间湿度显示
-   {
-      if (G_SYS_Mode_Buf == mode_SYS_HUM)
+      if (G_Set_SYS_Hum_Time > 0) //设定湿度显示
+      {
+         Disp_Set_Hum();
+      }
+      else if (G_Time_Setting_Time > 0) //定时设置显示
+      {
+         if (S_Flash_mS500)
+         {
+            dig1_2_dsp(G_Time_Buf);
+         }
+      }
+      else //房间湿度显示
       {
          hum_dsp_com = GET_ROOM_HUM();
          Disp_Hum_Value(hum_dsp_com);
       }
-      else if (G_SYS_Mode_Buf == mode_DRY)
-      {
-         dig1_num = DATA_d;
-         dig2_num = DATA_y;
-      }
-   }
 
-   if (G_SYS_Power_Status == OFF)
-   {
-      //待机时, 若设定定时开机, 可设置和显示部分功能
-      if (G_Set_SYS_Fan_Tyde_Time > 0 || G_Set_SYS_Mode_Time > 0)
-      {
-         FAN_Speed_Disp(G_SYS_Fan_Tyde_Buf);
-
-         if (G_SYS_Mode_Buf==mode_SYS_HUM)
+      /*
+         if (G_Pump_Status == ENABLE) //水管接入指示灯
          {
-            LED_HUM_MODE;
+            io_status = GET_PUMP_WATER_PIPE_STATUS();
+            if (io_status == DI_CUT)
+            {
+               if (S_Flash_mS500)
+               {
+                  LED_PUMP;
+               }
+            }
+            else
+            {
+               LED_PUMP;
+            }
          }
-         else if(G_SYS_Mode_Buf== mode_DRY)
-         {
-            LED_DYR_MODE;
-         }
-      }
-      return;
-   }
-/*
-   if (G_Pump_Status == ENABLE) //水管接入指示灯
-   {
-      io_status = GET_PUMP_WATER_PIPE_STATUS();
-      if (io_status == DI_CUT)
-      {
-         if (S_Flash_mS500)
-         {
-            LED_PUMP;
-         }
-      }
-      else
+       */
+      if (G_Filter_Status == ENABLE) //滤网清洗时间
       {
          LED_PUMP;
       }
-   }
- */
-   if (G_Filter_Status == ENABLE ) //滤网清洗时间
-   {
-      if (S_Flash_mS500)
-      {
-         LED_PUMP;
-      }
-   }
 
-   if (G_Def_Reg.Defrost_status) //除霜指示灯
-   {
-      LED_def;
-   }
-   else if (G_SYS_Fast_Test) //快测指示灯
-   {
-      if (S_Flash_mS500)
+      if (G_Def_Reg.Defrost_status) //除霜指示灯
       {
          LED_def;
       }
-   }
+      else if (G_SYS_Fast_Test) //快测指示灯
+      {
+         if (S_Flash_mS500)
+         {
+            LED_def;
+         }
+      }
 
-   switch (G_SYS_Mode_Buf)
-   {
-   case mode_SYS_HUM:
-   {
-      LED_HUM_MODE;
-   }
-   break;
+      if ((G_Disp_SA_Time > 0) && (Comp_SA_EN == ENABLE)) //压缩机连续超长时间运后, 安全待机显示
+      {
+         if (S_Flash_mS500)
+            Disp_Work_Mode();
+      }
+      else
+      {
+         Disp_Work_Mode();
+      }
 
-   case mode_DRY:
-   {
-      LED_DYR_MODE;
-   }
-   break;
-
-   default:
-   {
-   }
-   break;
-   };
-
-   if (G_Set_SYS_Fan_Tyde_Time > 0)
-   {
-      FAN_Speed_Disp(G_SYS_Fan_Tyde_Buf);
-   }
-   else
-   {
-      FAN_Speed_Disp(G_Fan_Tyde_Out);
+      Disp_Fan(); //风速显示
    }
 }
 
