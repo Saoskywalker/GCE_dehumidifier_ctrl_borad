@@ -32,7 +32,7 @@ void main(void)
         {
             WDTCON |= 0x10; // WDT_Clear
             LED_Display();
-            // Temp_Deal();
+            Temp_Deal();
             Key_Deal();
             General_Deal();
             Communication_Deal();

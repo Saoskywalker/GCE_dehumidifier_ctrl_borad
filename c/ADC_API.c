@@ -723,7 +723,7 @@ void Temp_Deal(void)
 		return;
 	}
 
-	if (S_Temp_Updata_Count >= 5) //要求每5秒更新一次值
+	if (S_Temp_Updata_Count >= 5 || G_Power_Delay_Time > 0) //要求每5秒更新一次值
 	{
 		S_Temp_Updata_Count = 0;
 		temp_updata_en = ENABLE;
