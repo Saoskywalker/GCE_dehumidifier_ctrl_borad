@@ -127,7 +127,7 @@ void SYS_Data_Init(void)
 
 // *****************************************************************************
 // 函数名称 : UI16_Addition_Operation
-// 功能说明 : 16位加法
+// 功能说明 : 16位加法(使用此函数是做变量越界判断)
 // 入口参数 : _Subtraction 被加的值   _minuend加多少值
 // 出口参数 : 16位运算结果
 // 当前版本 : V1.0
@@ -154,7 +154,7 @@ UI16 UI16_Addition_Operation(UI16 _augend, UI16 _addend)
 
 // *****************************************************************************
 // 函数名称 : UI16_Subtraction_Operation
-// 功能说明 : 16位减法
+// 功能说明 : 16位减法(使用此函数是做变量越界判断)
 // 入口参数 : _Subtraction 被减的值   _minuend减多少值
 // 出口参数 : 16位运算结果
 // 当前版本 : V1.0
@@ -329,6 +329,7 @@ void Turn_Off(void)
     G_Time_Setting_Time = 0;
     S_Time_Set_IN = 0;
     G_Set_SYS_Hum_Time = 0;
+    G_Set_SYS_Mode_Time = 0;
 
     G_Comp_Test_EN = DISABLE;
     WIFI_Self_Test_delay_time = WIFI_SELF_TEST_IN_TIMER; //关机状态才可进产测
@@ -431,11 +432,15 @@ TE_FuncState Get_Invalid_Key(UI08 key_num)
     {
         return ENABLE;
     }
-    else if ((G_High_T_P4_Error_Status = ERROR) || (G_Turn_On_H_T_Error_Status == ERROR))
+    else if ((G_High_T_P4_Error_Status == ERROR) || (G_Turn_On_H_T_Error_Status == ERROR))
     {
         return ENABLE;
     }
-    else if ((G_High_T_P5_Error_Status == ERROR) || (G_High_T_P3_Error_Status = ERROR))
+    else if ((G_High_T_P5_Error_Status == ERROR) || (G_High_T_P3_Error_Status == ERROR))
+    {
+        return ENABLE;
+    }
+    else if (G_EC1_Err)
     {
         return ENABLE;
     }
@@ -467,16 +472,18 @@ void Set_Power_Status(void)
     }
     else
     {
-        if (Comp_SA_EN == ENABLE)
-        {
-            G_Disp_SA_Time = 30;
-        }
-        else
+        // if (Comp_SA_EN == ENABLE)
+        // {
+            // G_Disp_SA_Time = 30;
+        // }
+        // else
         {
             Turn_On();
             G_Fan_Force_Run_Time = 180;
         }
     }
+
+    G_Disp_SA_Time = 30;
 }
 
 // *****************************************************************************
@@ -508,6 +515,8 @@ void Set_FAN_Tyde(void)
     G_Set_SYS_Fan_Tyde_Time = 20;
 
     G_Buzz_Time = BUZZ_short_time;
+    
+    G_Disp_SA_Time = 30;
 }
 
 // *****************************************************************************
@@ -668,6 +677,8 @@ void Up_Key_Function(void)
     {
         Set_Hum_Up();
     }
+
+    G_Disp_SA_Time = 30;
 }
 
 // *****************************************************************************
@@ -699,6 +710,8 @@ void Down_Key_Function(void)
     {
         Set_Hum_Down(); //设置湿度
     }
+
+    G_Disp_SA_Time = 30;
 }
 
 // *****************************************************************************
@@ -742,6 +755,8 @@ void Set_In_Time(void)
     {
         G_Set_SYS_Hum_Time = 1;
     }
+
+    G_Disp_SA_Time = 30;
 }
 
 // *****************************************************************************
@@ -784,6 +799,8 @@ void Set_SYS_Mode(void)
     {
         G_Time_Setting_Time = 1;
     }
+
+    G_Disp_SA_Time = 30;
 }
 
 // *****************************************************************************
@@ -848,6 +865,8 @@ void Filter_Clean(void)
 	    G_Filter_Status = DISABLE;
         G_Buzz_Time = BUZZ_short_time;
     }
+
+    G_Disp_SA_Time = 30;
 }
 
 // *****************************************************************************
