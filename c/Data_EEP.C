@@ -243,20 +243,20 @@ void Sys_Data_Read_EEP(void)
 
     G_Comp_Overtime_Protect_Flag = (TE_FuncState)S_Sys_Memory_Data.S_data.E_Comp_Overtime_Protect_Flag;
 
+    G_Filter_Run_Time = S_Sys_Memory_Data.S_data.E_SYS_filter_time_hi;
+    G_Filter_Run_Time = (G_Filter_Run_Time << 8) + S_Sys_Memory_Data.S_data.E_SYS_filter_time_lo;
+    G_Filter_Run_Time_Buf = G_Filter_Run_Time;
+
     G_SYS_Power_Status = (ONOFF_STATUS)S_Sys_Memory_Data.S_data.E_SYS_Power_Status;
     if (G_SYS_Power_Status == ON)
     {
         G_Comp_Para.off_time = 0;
         WIFI_Self_Test_delay_time = 0;
     }
-    else
+    else //如不再工作状态则按系统默认
     {
         return;
     }
-
-    G_Filter_Run_Time = S_Sys_Memory_Data.S_data.E_SYS_filter_time_hi;
-    G_Filter_Run_Time = (G_Filter_Run_Time << 8) + S_Sys_Memory_Data.S_data.E_SYS_filter_time_lo;
-    G_Filter_Run_Time_Buf = G_Filter_Run_Time;
 
     G_SYS_Mode = (TU_SYS_Mode)S_Sys_Memory_Data.S_data.E_SYS_Mode; //系统模式
     G_SYS_Mode_Buf = G_SYS_Mode;
