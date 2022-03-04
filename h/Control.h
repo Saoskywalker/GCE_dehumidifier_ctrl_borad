@@ -21,6 +21,7 @@
 #define defrost_para12 (15 + 9)  //铜管故障时，以室温判断 <15
 
 //==================对外接口===============================================================
+extern GCE_XDATA TE_Bool G_EC1_Err;   // EC多次进入保护后, 报EC故障
 
 extern GCE_XDATA TU_Def_Reg G_Def_Reg;
 
@@ -38,6 +39,7 @@ extern GCE_XDATA TE_FuncState  G_Filter_Status;
 extern GCE_XDATA TE_FuncState G_Comp_Test_EN;
 extern GCE_XDATA TS_DO_Para_Def G_Comp_Para; //压缩机
 extern GCE_XDATA TS_DO_Para_Def G_Pump_Para; //水泵
+extern GCE_XDATA TS_DO_Para_Def G_Work_Para; //工作时间
 
 extern GCE_XDATA TU_FAN_Speed_Type G_Fan_Tyde_Out; //实际运行风速
 extern GCE_XDATA TU_FAN_Speed_Type G_Fan_Tyde_Out_Buf; //实际运行风速
