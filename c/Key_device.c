@@ -16,6 +16,7 @@ GCE_XDATA UI08 S_Shake_Count = 0;
 GCE_XDATA UI08 G_Key_Number = 0; //滤波后识别出的按键
 
 GCE_XDATA UI16 WIFI_Self_Test_delay_time = 0; //待機狀態下前5秒內,長按風速鍵5秒發送一次Wifi模产检模式指令
+GCE_XDATA UI08 S_Self_Test_delay_Time = 3;	  //本地按键触发自检等待时间
 
 #define KEY_FILTER_COUNT 5 //单按键滤波次         数值为 1~254
 
@@ -44,6 +45,11 @@ void Prg_S_Key_Device(void)
 	{
 		WIFI_Self_Test_delay_time--;
 	}
+
+	if(S_Self_Test_delay_Time > 0)
+    {
+       S_Self_Test_delay_Time--;
+    }
 }
 
 // *****************************************************************************
@@ -79,6 +85,42 @@ void Dev_Read_Key_Data(void)
 			S_Key_Data |= (0x01 << i);
 		}
 	}
+}
+
+// *****************************************************************************
+// 函数名称 : Enter_Test_Judge
+// 功能说明 : 判断是否进入自检
+// 入口参数 : 无
+// 出口参数 : 无
+// 当前版本 : V1.0
+// 编写人员 : Aysi-E
+// 审核人员 :
+// 审核日期 :
+// 修改记录 :   V1.0首次发布
+// 备注     ：
+//
+// *****************************************************************************
+UI08 Enter_Test_Judge(UI08 key)
+{
+	static GCE_XDATA UI16 keep_cnt = 0;
+
+	if (S_Self_Test_delay_Time > 0) // 3s
+	{
+		if (key == UP_KEY)
+		{
+			keep_cnt++;
+			S_Self_Test_delay_Time = 2;
+		}
+	}
+
+	if (keep_cnt >= 300)
+	{
+		keep_cnt = 0;
+		S_Self_Test_delay_Time = 0;
+		return 1;
+	}
+
+	return 0;
 }
 
 // *****************************************************************************
@@ -150,12 +192,14 @@ void Dev_Get_Key_Number(void)
 	else if (key_total_count == 2) //双按键的组合按键
 	{
 		S_Shake_Count = 0xff;
+		S_Key_One_Buf = 0;
 	}
 	else //同时按下3个或者3个以上按键，不处理
 	{
 		S_Key_New = 0;
 		S_Key_Last = 0;
 		S_Shake_Count = 0xff;
+		S_Key_One_Buf = 0;
 		return;
 	}
 	/////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +218,7 @@ void Dev_Get_Key_Number(void)
 			}
 		}
 		S_Key_Last = 0;
+		S_Key_One_Buf = 0;
 		return;
 	}
 
@@ -193,7 +238,7 @@ void Dev_Get_Key_Number(void)
 
 	// 单按键或者双按键 长按识别
 	/////////////////////////////////////////////////////////////////////////////////
-	if ((S_Key_Last == 300) && (S_Key_Data == ((0x01 << (DOWN_KEY - 1)) | (0x01 << (SET_TIME_KEY - 1)))))
+	if ((S_Key_Last == 500) && (S_Key_Data == (0x01 << (SET_TIME_KEY - 1))))
 	{
 		G_Key_Number = FAST_TEST_KEY;
 		S_Shake_Count = 0xff;
