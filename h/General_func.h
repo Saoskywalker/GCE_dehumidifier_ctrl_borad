@@ -82,7 +82,6 @@ extern void Set_In_Comp_Test(void);
 extern void Set_RESET_WIFI(void);
 extern void Set_TEST_WIFI(void);
 extern void Set_Comp_Overtime_Protect(void);
-extern UI08 Enter_Test_Judge(UI08 key);
 extern void Set_In_Self_Test(void);
 
 #endif

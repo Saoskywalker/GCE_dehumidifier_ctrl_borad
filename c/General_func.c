@@ -14,6 +14,7 @@ GCE_XDATA UI08 G_Test_Step = 0;  //自检
 GCE_XDATA UI08 G_Test_Cont1 = 0; //自检
 GCE_XDATA UI08 G_Test_Cont2 = 0; //自检
 
+GCE_XDATA UI08 S_IN_timer_key_count = 1;          //按定时按键次数(用于快测)
 GCE_XDATA TS_SYS_Err G_Sys_Err;                   //故障
 GCE_XDATA TE_FuncState G_SYS_Self_Test = DISABLE; //自检标志
 GCE_XDATA TE_FuncState G_SYS_Fast_Test = DISABLE; // 快测标志
@@ -731,6 +732,11 @@ void Set_In_Time(void)
 {
     G_Buzz_Time = BUZZ_short_time;
 
+    if (S_IN_timer_key_count < 0xff)
+    {
+        S_IN_timer_key_count++;
+    }
+
     if (G_Time_Setting_Time > 0) //正在设置则取消定时
     {
         G_Time_Setting_Time = 0;
@@ -999,9 +1005,15 @@ void SYS_Timing_Switch_Logic(void)
 // *****************************************************************************
 void Set_In_Fast_Test(void)
 {
+    //上电后首次长按定时键5秒进入快测。非首次长按定时间5秒，不可以触发
+    if ((S_IN_timer_key_count >= 2) || (G_SYS_Fast_Test == ENABLE))
+    {
+        return;
+    }
+
     G_SYS_Fast_Test = ENABLE;
     G_Buzz_Time = BUZZ_short_time;
-    G_Disp_Machine_Temp_Time = 8;
+    G_Disp_Machine_Temp_Time = 10;
 }
 
 // *****************************************************************************
@@ -1092,46 +1104,6 @@ void Set_Comp_Overtime_Protect(void)
         G_Comp_Overtime_Protect_Flag = ENABLE;
 
     G_Buzz_Time = BUZZ_short_time;
-}
-
-// *****************************************************************************
-// 函数名称 : Enter_Test_Judge
-// 功能说明 : 判断是否进入自检
-// 入口参数 : 无
-// 出口参数 : 无
-// 当前版本 : V1.0
-// 编写人员 : Aysi-E
-// 审核人员 :
-// 审核日期 :
-// 修改记录 :   V1.0首次发布
-// 备注     ：
-//
-// *****************************************************************************
-UI08 Enter_Test_Judge(UI08 key)
-{
-    static GCE_XDATA UI08 key_power_delay = 100;
-    static GCE_XDATA UI16 keep_cnt = 0;
-
-    if (key_power_delay > 0) // 3s
-    {
-        key_power_delay--;
-        if (key == UP_KEY)
-        {
-            keep_cnt++;
-            key_power_delay = 10;
-        }
-    }
-
-    if (keep_cnt >= 300)
-    {
-        keep_cnt = 0;
-        key_power_delay = 0;
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 // *****************************************************************************

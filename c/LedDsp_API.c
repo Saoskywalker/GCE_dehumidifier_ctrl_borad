@@ -446,13 +446,21 @@ void Disp_Machine_Temp(void)
 {
    UI08 dsp_temp = 0;
    //
-   if (G_Disp_Machine_Temp_Time == 7)
+   if (G_Disp_Machine_Temp_Time == 9)
    {
       dsp_temp = GET_ROOM_TEMP_C();
    }
-   else if (G_Disp_Machine_Temp_Time == 5)
+   else if (G_Disp_Machine_Temp_Time == 7)
    {
       dsp_temp = GET_COIL_TEMP_C();
+   }
+   else if (G_Disp_Machine_Temp_Time == 5)
+   {
+      dsp_temp = GET_Comp_TEMP_C();
+      if (dsp_temp >= 115) //大于100度, 双位数码管最大99
+      {
+         dsp_temp = 114;
+      }
    }
    else if (G_Disp_Machine_Temp_Time == 3)
    {
