@@ -466,10 +466,15 @@ void Set_Power_Status(void)
 {
     G_Buzz_Time = BUZZ_long_time;
 
+    if (G_SYS_Fast_Test)
+    {
+        G_SYS_Fast_Test = DISABLE; //退出快测
+        return;
+    }
+
     if (G_SYS_Power_Status == ON)
     {
         Turn_Off();
-        G_SYS_Fast_Test = DISABLE; //退出快测
     }
     else
     {
@@ -1011,6 +1016,7 @@ void Set_In_Fast_Test(void)
         return;
     }
 
+    S_IN_timer_key_count = 0XFF;
     G_SYS_Fast_Test = ENABLE;
     G_Buzz_Time = BUZZ_short_time;
     G_Disp_Machine_Temp_Time = 10;
