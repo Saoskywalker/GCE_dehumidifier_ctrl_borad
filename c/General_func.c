@@ -413,9 +413,12 @@ TE_FuncState Get_Invalid_Key(UI08 key_num)
     }
 
     //为防止用户误触发, 进入PCB生产自检时, 铜管和吐出温要拔掉
-    if (key_num == SELF_TEST_KEY && G_Sys_Err.temp_comp_err && G_Sys_Err.temp_coil_err)
+    if (key_num == SELF_TEST_KEY)
     {
-        return DISABLE;
+        if (G_Sys_Err.temp_comp_err && G_Sys_Err.temp_coil_err)
+            return DISABLE;
+        else
+            return ENABLE;
     }
 
     //故障时按键无效
