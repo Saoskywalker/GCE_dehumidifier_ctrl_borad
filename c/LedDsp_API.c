@@ -310,7 +310,7 @@ void LedDsp_Test(void)
 
    if (test_seq == 2) //Ω·π˚œ‘ æ
    {
-      Clear_Display_Data_Buf();
+      Disp_All();
       if (GET_COM_STATUS() == ERROR)
       {
          dig1_num = DATA_E;
