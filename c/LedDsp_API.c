@@ -178,9 +178,9 @@ void Disp_Hum_Value(UI08 _data_buf)
       dig1_num = DATA_9;
       dig2_num = DATA_0;
    }
-   else if (_data_buf <= 20)
+   else if (_data_buf <= 30)
    {
-      dig1_num = DATA_2; // DATA_L;  20131122
+      dig1_num = DATA_3; // DATA_L;  20131122
       dig2_num = DATA_0; // DATA_o;
    }
    else

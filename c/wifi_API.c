@@ -208,7 +208,19 @@ void WIFI_data_update(void)
     case DPID_HUMIDITY_INDOOR: //室内湿度(只上报)
     {
         Wifi_Updata.Room_HUM = GET_ROOM_HUM();
-        wifi_tx_status = mcu_dp_value_update(DPID_HUMIDITY_INDOOR, Wifi_Updata.Room_HUM); //枚举型数据上报;
+
+        if (Wifi_Updata.Room_HUM >= 90)
+        {
+            wifi_tx_status = mcu_dp_value_update(DPID_HUMIDITY_INDOOR, 90); //枚举型数据上报;
+        }
+        else if (Wifi_Updata.Room_HUM <= 30)
+        {
+            wifi_tx_status = mcu_dp_value_update(DPID_HUMIDITY_INDOOR, 30); //枚举型数据上报;
+        }
+        else
+        {
+            wifi_tx_status = mcu_dp_value_update(DPID_HUMIDITY_INDOOR, Wifi_Updata.Room_HUM); //枚举型数据上报;
+        }
     }
     break;
     case DPID_FAULT:
