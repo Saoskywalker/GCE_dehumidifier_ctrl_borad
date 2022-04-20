@@ -180,7 +180,13 @@ void WIFI_data_update(void)
     case DPID_FAN_SPEED_ENUM: //风速(可下发可上报)
     {
         Wifi_Updata.SYS_Fan_Tyde = Updata_speed;
-        wifi_tx_status = mcu_dp_enum_update(DPID_FAN_SPEED_ENUM, Wifi_Updata.SYS_Fan_Tyde);
+
+        if ((Wifi_Updata.SYS_Fan_Tyde == LOW_FAN) || 
+            (Wifi_Updata.SYS_Fan_Tyde == MID_FAN) || 
+            (Wifi_Updata.SYS_Fan_Tyde == HIGH_FAN))
+        {
+            wifi_tx_status = mcu_dp_enum_update(DPID_FAN_SPEED_ENUM, Wifi_Updata.SYS_Fan_Tyde);
+        }
     }
     break;
     case DPID_MODE: //模式(可下发可上报)
@@ -508,6 +514,7 @@ void wifi_status_DSP(void)
 void Wifi_UPdata_for_SYSdata_Deal(void)
 {
     UI08 err_buf = 0;
+/* 
     if ((G_Set_Fan_Tyde_EN == DISABLE) || (G_Def_Reg.Defrost_status == TRUE))
     {
         if (G_Fan_Tyde_Out_Buf != OFF_FAN)
@@ -523,6 +530,7 @@ void Wifi_UPdata_for_SYSdata_Deal(void)
     {
         Updata_speed = G_SYS_Fan_Tyde;
     }
+*/
 
     /*
         if(G_Sys_Err.temp_room_err)     //温度感应器短路或者开路  E1

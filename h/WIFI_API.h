@@ -38,6 +38,7 @@ extern GCE_XDATA UUI16 flag_wifi;
 extern GCE_XDATA UI08 M_wifi_rssi_dsp;          // wifi 信号强度
 extern GCE_XDATA UI08 all_data_update_point;    //全部数据上报时的计数值
 extern GCE_XDATA UI08 Wifi_Rssi_DSP_delay_time; //
+extern GCE_XDATA TU_FAN_Speed_Type Updata_speed; //上传风速
 
 extern void UART_Init(void);
 extern void WIFI_Deal(void);

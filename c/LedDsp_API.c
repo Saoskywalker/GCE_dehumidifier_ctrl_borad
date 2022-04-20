@@ -502,6 +502,8 @@ void FAN_Speed_Disp(TU_FAN_Speed_Type _fan_buf)
    {
       LED_FAN_LOW;
    }
+
+   Updata_speed = _fan_buf;
 }
 
 // *****************************************************************************
